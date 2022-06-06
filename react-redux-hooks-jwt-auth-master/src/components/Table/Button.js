@@ -10,7 +10,7 @@ function Button({data, type, index, handleOnClick}) {
    
   return (
     index !== ""?
-    <button onClick={(e) => handleOnClick(e)} type="button" className={btnType} id={index}>{data}  </button> :
+    <button onClick={(e) => handleOnClick(e)} type="button" className={btnType} id={index} style={{margin: '5px'}}>{data}  </button> :
     <button onClick={(e) => handleOnClick(e)} type="button" className={btnType} id={index}>{data} </button>
   )
 }
