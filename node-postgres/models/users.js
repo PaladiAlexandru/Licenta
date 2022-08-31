@@ -99,7 +99,13 @@ const getCourseUsers = (courseName) => {
           if (error) {
             reject(error)
           }
-          resolve(`Grades have been added`)
+          
+        })
+        pool.query("INSERT INTO public.feed( id_course, id_user, grade)VALUES ($1, $2, $3)", [ courseId, userId, grade ], (error, results) => {
+          if (error) {
+            reject(error)
+          }
+          resolve(`Grades have been added to the feed`)
         })
       })
       

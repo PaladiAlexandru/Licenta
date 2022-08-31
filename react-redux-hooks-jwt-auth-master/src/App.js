@@ -23,6 +23,7 @@ import { history } from "./helpers/history";
 // import AuthVerify from "./common/AuthVerify";
 import EventBus from "./common/EventBus";
 import UserCourses from "./components/UserCourses";
+import Feed from "./components/feed/Feed";
 
 const App = () => {
   const [showModeratorBoard, setShowModeratorBoard] = useState(false);
@@ -98,6 +99,20 @@ const App = () => {
                 </Link>
               </li>
             )}
+            {currentUser && currentUser.rows[0].role.includes("user") && (
+              <li className="nav-item">
+                <Link to={"/Feed"} className="nav-link">
+                  Feed
+                </Link>
+              </li>
+            )}
+            {currentUser && currentUser.rows[0].role.includes("profesor") && (
+              <li className="nav-item">
+                <Link to={"/Feed"} className="nav-link">
+                  Feed
+                </Link>
+              </li>
+            )}
           </div>
 
           {currentUser ? (
@@ -142,6 +157,7 @@ const App = () => {
             <Route path="/addCourse" component={AddCourse} />
             <Route path="/insertGrades" component={InsertGrades} />
             <Route path="/userCourses" component={UserCourses} />
+            <Route path="/Feed" component={Feed} />
           </Switch>
         </div>
 
