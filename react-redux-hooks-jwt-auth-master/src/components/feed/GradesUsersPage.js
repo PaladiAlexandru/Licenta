@@ -1,39 +1,28 @@
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { Redirect } from "react-router-dom";
 import getCourses, { ownedCourse } from "../../services/teacher-service";
 import FeedItem from "./FeedItem";
-import store from '../../store'
+import { check } from "./utils";
 
-import { useHistory } from "react-router-dom";
 
-const Feed = () =>{
-  const history = useHistory();
-
-  const handleViewGradesBtn =(e) => {
-    
-
-      store.dispatch({type: "LOAD_GRADES",payload: e.currentTarget.id})
-        let path = `/GradesUsers`;
-        
-        history.push(path);
-        
-  }  
+const GradesUsersPage = () =>{
   
 
+  const handleViewGradesBtn =(e) => {
+    console.log("Afiseaza notele");
+  }
   const user= useSelector((state) => state.auth.user.rows)
-  const [courses, setCourses]= useState([]); 
-  const [allCourses, setAllCourses] = useState([]);  
+  const [data, setData]= useState([]); 
  
  
   useEffect(() => {
     let aux = [];
-   user[0].id && getCourses(user[0].id).then(response => {
+   user[0].id && getUsersGrades(user[0].id).then(response => {
      response.data.rows.forEach(course => {
        aux.push(course);
        
      })
-     setCourses(aux);
+     setData(aux);
      
    })
   
@@ -83,4 +72,4 @@ const Feed = () =>{
 
 }
 
-export default Feed;
+export default GradesUsersPage;

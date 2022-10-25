@@ -2,7 +2,11 @@ import axios from "axios";
 
 const API_URL = "http://localhost:3001/";
 
-
+export  function ownedCourse(userId)  {
+  
+  
+  return  axios.post(API_URL + "teacher/ownedCourse", { userId:userId });
+};
 
 export default function getCourses (index)  {
   

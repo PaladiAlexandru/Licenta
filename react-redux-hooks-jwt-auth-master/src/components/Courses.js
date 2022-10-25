@@ -13,7 +13,7 @@ const Courses = () =>{
      console.log(response.data.rows);
    })
    debugger
-   useEffect(() => {
+   useEffect(() => {  
      let aux = [];
     user[0].id && getCourses(user[0].id).then(response => {
       response.data.rows.forEach(course => {

@@ -12,3 +12,5 @@ export const USERS_LOADED = "USERS_LOADED";
 export const ADD_PROFESOR = "ADD_PROFESOR";
 
 export const LOAD_COURSES = "LOAD_COURSES";
+
+export const LOAD_GRADES = "LOAD_GRADES";

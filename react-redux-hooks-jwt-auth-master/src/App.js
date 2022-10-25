@@ -24,6 +24,7 @@ import { history } from "./helpers/history";
 import EventBus from "./common/EventBus";
 import UserCourses from "./components/UserCourses";
 import Feed from "./components/feed/Feed";
+import GradesUsers from "./components/feed/GradesUsers";
 
 const App = () => {
   const [showModeratorBoard, setShowModeratorBoard] = useState(false);
@@ -158,6 +159,7 @@ const App = () => {
             <Route path="/insertGrades" component={InsertGrades} />
             <Route path="/userCourses" component={UserCourses} />
             <Route path="/Feed" component={Feed} />
+            <Route path="/GradesUsers" component={GradesUsers} />
           </Switch>
         </div>
 

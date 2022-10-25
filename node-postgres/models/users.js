@@ -20,12 +20,14 @@ const addCourse = (data) => {
       }
       resolve(`A new course has been added`)
     })
-    await pool.query('SELECT id FROM courses WHERE "name"=$1 ', [name], (error, results) => {
+     pool.query('SELECT id FROM courses WHERE "name"=$1 ', [name], async(error, results) => {
       if (error) {
         reject(error)
       }
-     
+      await new Promise(r => setTimeout(r, 5000));
+      console.log("Result:" + results.rows[0])
       pool.query('INSERT INTO courses_users (course_id,user_id) VALUES ($1, $2) ', [results.rows[0].id, teacher_id], (error, results) => {
+        
         if (error) {
           reject(error)
         }
@@ -44,6 +46,22 @@ async function getCoursesNames(index) {
   }
  
       
+  }
+  const ownedCourse = (userId) => {
+    console.log(userId)
+    return new Promise(function(resolve, reject) {
+      pool.query("SELECT * FROM feed WHERE owner=$1 OR id_user=$1", [userId], (error, results) => {
+        if (error) {
+          reject(error)
+        }
+        console.log(userId)
+        console.log(results.rows)
+        if (results)
+          resolve(results.rows);
+        else
+        reject(error)
+      })
+    }) 
   }
 
 const getCourseUsers = (courseName) => {
@@ -94,14 +112,14 @@ const getCourseUsers = (courseName) => {
   const sendGrades = (data) => {
     return new Promise(function(resolve, reject) {
       data.forEach(user => {
-        const { courseId, userId, grade }= user;
+        const { courseId, userId, grade,owner }= user;
         pool.query("INSERT INTO public.notes( id_course, id_user, grade)VALUES ($1, $2, $3)", [ courseId, userId, grade ], (error, results) => {
           if (error) {
             reject(error)
           }
           
         })
-        pool.query("INSERT INTO public.feed( id_course, id_user, grade)VALUES ($1, $2, $3)", [ courseId, userId, grade ], (error, results) => {
+        pool.query("INSERT INTO public.feed( id_course, id_user,owner)VALUES ($1, $2, $3)", [ courseId, userId, owner], (error, results) => {
           if (error) {
             reject(error)
           }
@@ -115,6 +133,7 @@ const getCourseUsers = (courseName) => {
       
      
   }
+
 
   const createUser = (body) => {
     return new Promise(function(resolve, reject) {
@@ -185,6 +204,20 @@ const getCourseUsers = (courseName) => {
       })
     })
   }
+  const getGrades = (id) => {
+   console.log("id:::" + id)
+    return new Promise(function(resolve, reject) {
+      pool.query('SELECT * FROM notes INNER JOIN users ON notes.id_user=users.id WHERE notes.id_course= $1', [id],(error, results) => {
+        if (error) {
+          console.log(error)
+          reject(error)
+        }
+        console.log("grade: " + results.rows[0].name +"id " + id)
+        resolve(results);
+      })
+    }) 
+  }
+ 
   
   module.exports = {
     createUser,
@@ -199,5 +232,7 @@ const getCourseUsers = (courseName) => {
     sendGrades,
     getAllCourses,
     removeCourse,
-    joinCourse
+    joinCourse,
+    ownedCourse,
+    getGrades
   }

@@ -79,11 +79,12 @@ const InsertGrades = (props) =>{
         console.log(users)
         let data = []
 
-        users.forEach(user => {
+        users.forEach(user1 => {
           let info={
-            courseId: user.course_id,
-            userId: user.id,
-            grade: parseInt(document.getElementById(user.name).value)
+            courseId: user1.course_id,
+            userId: user1.id,
+            grade: parseInt(document.getElementById(user1.name).value),
+            owner: user[0].id
           }
           data.push(info);
           
