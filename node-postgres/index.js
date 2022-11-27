@@ -137,10 +137,23 @@ app.post('/teacher/sendGrades',async function(req, res)  {
         res.status(200).send(response);
       
     }
+   
+
+
+})
+app.post('/progression',async function(req, res)  {
+  console.log("WAZAAAAAA")
+  if(response!= 'undefined'){
+    let response =await users.setExpectation(req.body.data);
+      res.status(200).send(response);
+    
+  }
  
 
 
 })
+
+
 app.post('/teacher/ownedCourse',async function(req, res)  {
   if(response!= 'undefined'){
     let response =await users.ownedCourse(req.body.userId);

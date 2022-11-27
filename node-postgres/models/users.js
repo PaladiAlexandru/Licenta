@@ -56,6 +56,7 @@ async function getCoursesNames(index) {
         }
         console.log(userId)
         console.log(results.rows)
+        
         if (results)
           resolve(results.rows);
         else
@@ -133,7 +134,28 @@ const getCourseUsers = (courseName) => {
       
      
   }
+  const setExpectation = (data) => {
+    console.log(data.idUser+ "////////////////////////")
+    return new Promise(function(resolve, reject) {
+      
+        
+        pool.query("INSERT INTO public.progress( id_user, expectation,id_course)VALUES ($1, $2, $3)", [ data.idUser, data.expectation, data.idCourse ], (error, results) => {
+          if (error) {
+            reject(error)
+          }
+          console.log("trec")
+          resolve(`Grades have been added to the feed`)
+        })
+        
+        
+     
+      
+      
+      });
 
+      
+     
+  }
 
   const createUser = (body) => {
     return new Promise(function(resolve, reject) {
@@ -234,5 +256,6 @@ const getCourseUsers = (courseName) => {
     removeCourse,
     joinCourse,
     ownedCourse,
-    getGrades
+    getGrades,
+    setExpectation
   }

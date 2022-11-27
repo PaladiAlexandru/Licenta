@@ -47,9 +47,9 @@ const Feed = () =>{
    user[0].id && courses.length !== 0 && 
         ownedCourse(user[0].id).then(resp =>{
           resp.data.forEach(crse => {
-            
+            debugger
             const found = courses.find(element => element.id == crse.id_course);
-            if (found != "undefined"){
+            if (found !== undefined){
                   aux.push(found);
             }
           
@@ -67,12 +67,12 @@ const Feed = () =>{
    
   },[courses])
   
-  
   return (
     <div className="container">
       <header className="jumbotron">
-      { allCourses && allCourses.map((course,id) => (
-          <FeedItem courseName={course.name} handleOnClick={handleViewGradesBtn} courseId={course.id} key={id}/>
+      { allCourses.length > 0 && allCourses.map((course,id) => (
+          
+          course.name !='undefined'? (<FeedItem courseName={course.name} handleOnClick={handleViewGradesBtn} courseId={course.id} key={id}/>): console.log(course)
         ))}
         
       </header>
