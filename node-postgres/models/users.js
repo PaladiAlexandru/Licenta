@@ -1,9 +1,11 @@
+const res = require('express/lib/response');
+
 const Pool = require('pg').Pool
 const pool = new Pool({
-  user: 'my_user',
+  user: 'postgres',
   host: 'localhost',
   database: 'catalog_database',
-  password: 'root',
+  password: 'password',
   port: 5432,
 });
 
@@ -93,6 +95,7 @@ const getCourseUsers = (courseName) => {
           console.log(error)
           reject(error)
         }
+        console.log(results)
         resolve(results);
       })
     }) 
@@ -159,9 +162,11 @@ const getCourseUsers = (courseName) => {
 
   const createUser = (body) => {
     return new Promise(function(resolve, reject) {
-      const { name, password } = body
-      pool.query('INSERT INTO users (name, password) VALUES ($1, $2) RETURNING *', [name, password], (error, results) => {
+      const { username, password } = body
+      console.log(username)
+      pool.query('INSERT INTO users (name, password,role) VALUES ($1, $2,$3) RETURNING *', [username, password,"user"], (error, results) => {
         if (error) {
+          console.log(error)
           reject(error)
         }
         resolve(`A new user has been added`)

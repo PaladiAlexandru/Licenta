@@ -31,7 +31,7 @@ app.get('/board/mod', (req, res) => {
   })
 })
 app.post('/signin', (req, res) => {
-  
+  console.log("ajung")
   console.log("req: " + req.body.username);
   users.getUser(req.body)
   .then(response => {
@@ -52,7 +52,7 @@ app.post('/signin', (req, res) => {
 })
 
 app.post('/signup', (req, res) => {
-
+  console.log("ajung")
   users.createUser(req.body)
   .then(response => {
     res.status(200).send(response);

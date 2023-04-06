@@ -9,7 +9,7 @@ import { ADD_PROFESOR, REMOVE_ADMIN } from '../../actions/mod';
 function Table({colNames}) {
     const dispatch =useDispatch();
     const users = useSelector((state) => state.users.users)
-    
+    debugger
     let index=0;
     
     
@@ -50,9 +50,9 @@ function Table({colNames}) {
                             
                         )}
                          {  
-                            users[user.id]&&
-                            users[user.id-1] &&users[user.id-1].role === 'secretar' ? '' :
-                            users[user.id-1] &&users[user.id-1].role !== 'profesor' ? 
+                            
+                            user&&user.role === 'secretar' ? '' :
+                            user&&user.role !== 'profesor' ? 
                             <td> <Button data={"Adaugă Profesor"} type="primary" index={user.id} handleOnClick={handleAdd}></Button></td> :
                             <td> <Button data={"Șterge Profesor"} type="danger" index={user.id} handleOnClick={handleRemove}></Button></td>
                             

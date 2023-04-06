@@ -33,8 +33,7 @@ const AddCourse = (props) =>{
         setChecked1(false)
       else
         setChecked1(true)
-     
-   
+    
   }
   function displayGrades(e){
     var number = e.currentTarget.value;
