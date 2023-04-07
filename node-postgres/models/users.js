@@ -40,6 +40,25 @@ const addCourse = (data) => {
      
   })
 }
+const getCourse = (data) => {
+  return new Promise(async function(resolve, reject) {
+
+    const { name,description,type,final_exam,teacher_id } = data
+    
+  
+     pool.query('SELECT id FROM courses WHERE "name"=$1 ', [name], (error, results) => {
+      if (error) {
+        reject(error)
+      }
+      
+     
+        resolve(`A new course_users has been added`)
+      
+    })
+    
+     
+  })
+}
 async function getCoursesNames(index) {
   if(index>0){
     
@@ -121,7 +140,6 @@ const getCourseUsers = (courseName) => {
           if (error) {
             reject(error)
           }
-          
         })
         pool.query("INSERT INTO public.feed( id_course, id_user,owner)VALUES ($1, $2, $3)", [ courseId, userId, owner], (error, results) => {
           if (error) {
@@ -137,28 +155,28 @@ const getCourseUsers = (courseName) => {
       
      
   }
-  const setExpectation = (data) => {
-    console.log(data.idUser+ "////////////////////////")
-    return new Promise(function(resolve, reject) {
+  // const setExpectation = (data) => {
+  //   console.log(data.idUser+ "////////////////////////")
+  //   return new Promise(function(resolve, reject) {
       
         
-        pool.query("INSERT INTO public.progress( id_user, expectation,id_course)VALUES ($1, $2, $3)", [ data.idUser, data.expectation, data.idCourse ], (error, results) => {
-          if (error) {
-            reject(error)
-          }
-          console.log("trec")
-          resolve(`Grades have been added to the feed`)
-        })
+  //       pool.query("INSERT INTO public.progress( id_user, expectation,id_course)VALUES ($1, $2, $3)", [ data.idUser, data.expectation, data.idCourse ], (error, results) => {
+  //         if (error) {
+  //           reject(error)
+  //         }
+  //         console.log("trec")
+  //         resolve(`Grades have been added to the feed`)
+  //       })
         
         
      
       
       
-      });
+  //     });
 
       
      
-  }
+  // }
 
   const createUser = (body) => {
     return new Promise(function(resolve, reject) {
@@ -239,7 +257,6 @@ const getCourseUsers = (courseName) => {
           console.log(error)
           reject(error)
         }
-        console.log("grade: " + results.rows[0].name +"id " + id)
         resolve(results);
       })
     }) 
@@ -262,5 +279,5 @@ const getCourseUsers = (courseName) => {
     joinCourse,
     ownedCourse,
     getGrades,
-    setExpectation
+  
   }

@@ -12,7 +12,7 @@ const Feed = () =>{
 
   const handleViewGradesBtn =(e) => {
     
-
+      debugger
       store.dispatch({type: "LOAD_GRADES",payload: e.currentTarget.id})
         let path = `/GradesUsers`;
         

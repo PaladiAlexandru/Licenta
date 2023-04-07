@@ -6,7 +6,7 @@ import { useDispatch, useSelector} from "react-redux"
 import getCourses, { getAllCourses, removeCourse, joinCourse} from '../services/teacher-service'
 import { LOAD_COURSES } from "../actions/mod";
 import Modal from "./Modal";
-import { setExpectation } from "../services/progression-service";
+// import { setExpectation } from "../services/progression-service";
 const UserCourses = () =>{
 
    const user= useSelector((state) => state.auth.user.rows)
@@ -67,19 +67,19 @@ const UserCourses = () =>{
   debugger
   const data={
     idUser: user[0].id,
-    idCourse: localCourseId,
-    expectation: e.target.courseGrade.value
+    idCourse: localCourseId
+    // expectation: e.target.courseGrade.value
   };
 
-  setExpectation(data)
-  setModal(false)
+  // setExpectation(data)
+  // setModal(false)
   }
 
    
   const handleJoinBtn =(e) => {
     debugger
     setLocalCourseId(e.currentTarget.id);
-    setModal(true);
+    // setModal(true);
     joinCourse(user[0].id,e.currentTarget.id);
     let aux=[];
     courses.forEach(course => {

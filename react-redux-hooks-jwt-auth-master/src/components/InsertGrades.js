@@ -76,7 +76,8 @@ const InsertGrades = (props) =>{
       }
 
       const handleSubmit = (e) => {
-        console.log(users)
+        console.log("USERS:"+users)
+        debugger
         let data = []
 
         users.forEach(user1 => {

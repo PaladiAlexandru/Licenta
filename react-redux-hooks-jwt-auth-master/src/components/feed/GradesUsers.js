@@ -6,7 +6,8 @@ const GradesUsers = () =>{
   const [grades, setGrades]= useState([]); 
  const aux =[]
   useEffect(() => {
-    const courseId = store.getState().courseId.id
+    const courseId = store.getState().courseId.
+    debugger
     console.log("COURSEEEEEEEEEEEEE " +courseId)
     store.getState().courseId.id != undefined && getGrades(store.getState().courseId.id).then(response =>{
       
