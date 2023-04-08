@@ -131,6 +131,14 @@ app.post('/teacher/addCourse',async function(req, res)  {
     
   }
 })
+app.post('/teacher/getCourse',async function(req, res)  {
+  if(response!= 'undefined'){
+    debugger
+    let response =await users.getCourse(req.body.data);
+      res.status(200).send(response);
+    
+  }
+})
 app.post('/teacher/sendGrades',async function(req, res)  {
     if(response!= 'undefined'){
       let response =await users.sendGrades(req.body.data);

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { addCourse } from '../services/teacher-service';
+import { addCourse, getCourse } from '../services/teacher-service';
 import { useSelector } from "react-redux";
 import Form from 'react-bootstrap/Form';
 
@@ -8,7 +8,12 @@ const AddCourse = (props) => {
   const [oneTestChecked, setOneTestChecked] = useState(false);
   const [twoTestsChecked, setTwoTestsChecked] = useState(false);
   const { user: currentUser } = useSelector((state) => state.auth);
-  const handleSubmit = () => {
+  const [courseAdded, setCourseAdded] = useState(false); // Add state for whether the course has been added
+  const [formSubmited, setFormSubmited] = useState(false);
+ 
+
+  const handleSubmit = async(event) => {
+    event.preventDefault();
     let data = {
       name: document.getElementById("courseName").value,
       description: document.getElementById("courseDescription").value,
@@ -23,10 +28,15 @@ const AddCourse = (props) => {
         break;
       }
     }
-    addCourse(data);
-    console.log(data)
+    
+    const localData = await getCourse(data);
 
-
+    if (localData.rows.length === 0) {
+      addCourse(data).then(() => setCourseAdded(true));
+    } else {
+      console.log("The course already exists!");
+    }
+    setFormSubmited(true);
   }
   function checkFunc(e) {
     setChecked1(false);
@@ -194,6 +204,7 @@ const AddCourse = (props) => {
           <div className="form-group row">
             <div className="col-sm-10">
               <button type="submit" className="btn btn-success" onClick={handleSubmit}>Submit</button>
+              {formSubmited? courseAdded ? <div>Course added</div>:<div>Course already exists</div> : ""}
             </div>
           </div>
         </form>

@@ -42,7 +42,8 @@ const addCourse = (data) => {
 }
 const getCourse = (data) => {
   return new Promise(async function(resolve, reject) {
-
+    debugger
+    console.log("DATA "+ data.name)
     const { name,description,type,final_exam,teacher_id } = data
     
   
@@ -52,7 +53,7 @@ const getCourse = (data) => {
       }
       
      
-        resolve(`A new course_users has been added`)
+        resolve(results);
       
     })
     
@@ -279,5 +280,6 @@ const getCourseUsers = (courseName) => {
     joinCourse,
     ownedCourse,
     getGrades,
+    getCourse
   
   }

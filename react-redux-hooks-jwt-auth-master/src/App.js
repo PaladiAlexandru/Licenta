@@ -44,10 +44,10 @@ const App = () => {
   }, [dispatch]);
 
   useEffect(() => {
-    debugger
+    
   
     if (currentUser) {
-      debugger
+      
       setShowModeratorBoard(currentUser.rows[0].role.includes("secretar"));
       setShowAdminBoard(currentUser.rows[0].role.includes("profesor"));
       //setShowAdminBoard(currentUser.roles.includes("ROLE_ADMIN"));
