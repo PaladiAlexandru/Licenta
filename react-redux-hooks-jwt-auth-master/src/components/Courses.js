@@ -8,22 +8,20 @@ import { LOAD_COURSES } from "../actions/mod";
 const Courses = () =>{
 
    const user= useSelector((state) => state.auth.user.rows)
-   const [courses, setCourses]= useState([]); 
-   getCourses(user[0].id).then(response => {
-     console.log(response.data.rows);
-   })
-   debugger
-   useEffect(() => {  
-     let aux = [];
-    user[0].id && getCourses(user[0].id).then(response => {
-      response.data.rows.forEach(course => {
-        aux.push(course);
-        
+   const [courses, setCourses] = useState([]);
+
+useEffect(() => {
+  if (user[0]?.id) {
+    getCourses(user[0].id)
+      .then(response => {
+        setCourses(prevCourses => [...prevCourses, ...response.data.rows]);
       })
-      setCourses(aux);
-      
-    })
-   },[])
+      .catch(error => {
+        console.log(error);
+      });
+  }
+}, [user]);
+
    
   return (
     <div className="container">

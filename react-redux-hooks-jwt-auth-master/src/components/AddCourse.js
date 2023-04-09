@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { addCourse, getCourse } from '../services/teacher-service';
 import { useSelector } from "react-redux";
 import Form from 'react-bootstrap/Form';
+import { useRef } from "react";
 
 const AddCourse = (props) => {
   const [checked1, setChecked1] = useState(true);
@@ -10,6 +11,7 @@ const AddCourse = (props) => {
   const { user: currentUser } = useSelector((state) => state.auth);
   const [courseAdded, setCourseAdded] = useState(false); // Add state for whether the course has been added
   const [formSubmited, setFormSubmited] = useState(false);
+  const formRef = useRef(null);
  
 
   const handleSubmit = async(event) => {
@@ -37,6 +39,7 @@ const AddCourse = (props) => {
       console.log("The course already exists!");
     }
     setFormSubmited(true);
+    window.scrollTo({ top: formRef.current.scrollHeight, behavior: "smooth" });
   }
   function checkFunc(e) {
     setChecked1(false);
@@ -97,8 +100,8 @@ const AddCourse = (props) => {
 
   return (
     <div className="container">
-      <header className="jumbotron">
-        <form>
+      <header className="jumbotron" >
+        <form ref={formRef} style={{ alignItems: "left", display:"flow"}}>
           <div className="form-group row">
             <label htmlFor="courseName" className="col-sm-2 col-form-label">*Course name</label>
             <div className="col-sm-10">
@@ -188,10 +191,6 @@ const AddCourse = (props) => {
                   </Form.Group>
                 </div>
 
-
-
-
-
               </div>
             </div>
           </fieldset>
@@ -201,12 +200,25 @@ const AddCourse = (props) => {
               <input type="date" className="form-control" id="examDate" />
             </div>
           </div>
-          <div className="form-group row">
-            <div className="col-sm-10">
-              <button type="submit" className="btn btn-success" onClick={handleSubmit}>Submit</button>
-              {formSubmited? courseAdded ? <div>Course added</div>:<div>Course already exists</div> : ""}
-            </div>
-          </div>
+          <button type="submit" className="btn btn-success" onClick={handleSubmit}>Submit</button>
+          {formSubmited && (
+  <div
+    className={`card text-white ${
+      courseAdded ? 'bg-success' : 'bg-danger'
+    }`}
+    style={{ maxWidth: '18rem', textAlign: 'left' }}
+  >
+    <div className="card-header">{courseAdded ? 'Success!' : 'Error!'}</div>
+    <div className="card-body">
+      
+      <div className="card-text">
+        {courseAdded ? 'Course added' : 'Course already exists'}
+      </div>
+    </div>
+  </div>
+)}
+
+
         </form>
       </header>
     </div>
