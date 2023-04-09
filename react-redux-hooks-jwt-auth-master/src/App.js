@@ -25,6 +25,7 @@ import EventBus from "./common/EventBus";
 import UserCourses from "./components/UserCourses";
 import Feed from "./components/feed/Feed";
 import GradesUsers from "./components/feed/GradesUsers";
+import Chat from "./components/chat/Chat";
 
 const App = () => {
   const [showModeratorBoard, setShowModeratorBoard] = useState(false);
@@ -76,6 +77,11 @@ const App = () => {
             <li className="nav-item">
               <Link to={"/home"} className="nav-link">
                 Home
+              </Link>
+            </li>
+            <li className="nav-item">
+              <Link to={"/chat"} className="nav-link">
+                Chat
               </Link>
             </li>
 
@@ -155,6 +161,7 @@ const App = () => {
             <Route exact path="/register" component={Register} />
             <Route exact path="/profile" component={Profile} />
             <Route path="/user" component={BoardUser} />
+            <Route path="/chat" component={Chat} />
             <Route path="/mod" component={BoardModerator} />
             <Route path="/admin" component={BoardAdmin} />
             <Route path="/addCourse" component={AddCourse} />
