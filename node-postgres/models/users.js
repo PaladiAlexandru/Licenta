@@ -42,7 +42,7 @@ const addCourse = (data) => {
 }
 const getCourse = (data) => {
   return new Promise(async function(resolve, reject) {
-    debugger
+    
     console.log("DATA "+ data.name)
     const { name,description,type,final_exam,teacher_id } = data
     
@@ -60,11 +60,65 @@ const getCourse = (data) => {
      
   })
 }
+const getMessages= (idReceiver,idSender) => {
+  return new Promise(async function(resolve, reject) {
+  
+    
+      console.log(idReceiver,"aaa",idSender)
+     pool.query('SELECT * FROM messages WHERE (receiver_id=$1 AND sender_id=$2) OR (receiver_id=$2 AND sender_id=$1)', [idReceiver,idSender], (error, results) => {
+      if (error) {
+        reject(error)
+      }
+      
+     
+        resolve(results.rows);
+      
+    })
+    
+     
+  })
+}
+const getAllUsers= () => {
+  return new Promise(async function(resolve, reject) {
+
+    
+     pool.query('SELECT name,id FROM users',  (error, results) => {
+      if (error) {
+        reject(error)
+      }
+      
+     
+        resolve(results.rows);
+      
+    })
+    
+     
+  })
+}
+const addMessage= (data) => {
+  console.log("data",data)
+  return new Promise(async function(resolve, reject) {
+
+    const {receiver_id,sender_id,message,timestamp} = data;
+     pool.query('INSERT INTO public.messages(receiver_id, message, "timestamp", sender_id) VALUES ($1, $2, $3, $4)',[receiver_id,message,timestamp,sender_id],  (error, results) => {
+      if (error) {
+        reject(error)
+      }
+      
+     
+        resolve(results);
+      
+    })
+    
+     
+  })
+}
+
 async function getCoursesNames(index) {
   if(index>0){
     
     const response = await pool.query('SELECT * FROM courses INNER JOIN courses_users ON courses.id=courses_users.course_id WHERE courses_users.user_id= $1',[index]);
-    return response;
+    return response.rows;
   }
  
       
@@ -93,6 +147,7 @@ const getCourseUsers = (courseName) => {
         if (error) {
           reject(error)
         }
+        console.log("results: ",results.rows[0])
         resolve(results.rows);
       })
     }) 
@@ -142,6 +197,7 @@ const getCourseUsers = (courseName) => {
             reject(error)
           }
         })
+        console.log("userId:",userId)
         pool.query("INSERT INTO public.feed( id_course, id_user,owner)VALUES ($1, $2, $3)", [ courseId, userId, owner], (error, results) => {
           if (error) {
             reject(error)
@@ -206,7 +262,7 @@ const getCourseUsers = (courseName) => {
 
   const removeCourse = (idUser,idCourse) => {
     return new Promise(function(resolve, reject) {
-     
+     console.log("Delete: idUser: ",idUser," idCourse: ",idCourse)
       pool.query("DELETE FROM courses_users WHERE user_id=$1 AND course_id=$2", [idUser,idCourse], (error, results) => {
         if (error) {
           reject(error)
@@ -280,6 +336,9 @@ const getCourseUsers = (courseName) => {
     joinCourse,
     ownedCourse,
     getGrades,
-    getCourse
+    getCourse,
+    getMessages,
+    getAllUsers,
+    addMessage
   
   }

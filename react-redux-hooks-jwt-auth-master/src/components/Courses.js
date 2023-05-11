@@ -14,7 +14,9 @@ useEffect(() => {
   if (user[0]?.id) {
     getCourses(user[0].id)
       .then(response => {
-        setCourses(prevCourses => [...prevCourses, ...response.data.rows]);
+        debugger
+        if(response?.data)
+          setCourses(prevCourses => [...prevCourses, ...response.data]);
       })
       .catch(error => {
         console.log(error);

@@ -47,7 +47,7 @@ const App = () => {
   useEffect(() => {
     
   
-    if (currentUser) {
+    if (currentUser?.rows[0]) {
       
       setShowModeratorBoard(currentUser.rows[0].role.includes("secretar"));
       setShowAdminBoard(currentUser.rows[0].role.includes("profesor"));
@@ -69,21 +69,22 @@ const App = () => {
   return (
     <Router history={history}>
       <div>
-        <nav className="navbar navbar-expand navbar-dark bg-dark">
-          <Link to={"/"} className="navbar-brand">
-            Catalog-Live
-          </Link>
+      <nav className="navbar navbar-expand navbar-dark bg-dark">
+      <Link to={"/"} className="navbar-brand d-flex align-items-center">
+        <img src="/images/logo.png" alt="Catalog-Live" height="40" className="mr-2" />
+        Catalog-Live
+      </Link>
           <div className="navbar-nav mr-auto">
             <li className="nav-item">
               <Link to={"/home"} className="nav-link">
                 Home
               </Link>
             </li>
-            <li className="nav-item">
+           {currentUser && (<li className="nav-item">
               <Link to={"/chat"} className="nav-link">
                 Chat
               </Link>
-            </li>
+            </li>)} 
 
             {showModeratorBoard && (
               <li className="nav-item">
@@ -101,21 +102,21 @@ const App = () => {
               </li>
             )}
 
-            {currentUser && currentUser.rows[0].role.includes("user") && (
+            {currentUser && currentUser.rows[0] && currentUser.rows[0].role.includes("user") && (
               <li className="nav-item">
                 <Link to={"/userCourses"} className="nav-link">
                   Courses
                 </Link>
               </li>
             )}
-            {currentUser && currentUser.rows[0].role.includes("user") && (
+            {currentUser && currentUser.rows[0] && currentUser.rows[0].role.includes("user") && (
               <li className="nav-item">
                 <Link to={"/Feed"} className="nav-link">
                   Feed
                 </Link>
               </li>
             )}
-            {currentUser && currentUser.rows[0].role.includes("profesor") && (
+            {currentUser && currentUser.rows[0] && currentUser.rows[0].role.includes("profesor") && (
               <li className="nav-item">
                 <Link to={"/Feed"} className="nav-link">
                   Feed
@@ -124,11 +125,11 @@ const App = () => {
             )}
           </div>
 
-          {currentUser ? (
+          {currentUser && currentUser.rows[0] ? (
             <div className="navbar-nav ml-auto">
               <li className="nav-item">
                 <Link to={"/profile"} className="nav-link">
-                  {currentUser.username}
+                  {currentUser.rows[0].name}
                 </Link>
               </li>
               <li className="nav-item">

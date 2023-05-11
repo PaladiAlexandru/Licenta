@@ -4,7 +4,7 @@ const API_URL = "http://localhost:3001/";
 
 export  function ownedCourse(userId)  {
   
-  
+  console.log("userID:",userId)
   return  axios.post(API_URL + "teacher/ownedCourse", { userId:userId });
 };
 
@@ -21,9 +21,25 @@ export async function getUsers (courseName)  {
   
   return   await axios.post(API_URL + "teacher/getCourseUsers", { courseName });
 };
+export async function getAllUsers ()  {
+  
+  return   await axios.get(API_URL + "users");
+};
+export async function getMessages (receiverId,senderId)  {
+  let response = await axios.get(API_URL + `messages/${receiverId}/${senderId}`);
+  debugger
+  return response.data;
+};
+
 
 export async function getCourse(data) {
   const response = await axios.post(API_URL + "teacher/getCourse", { data });
+  return response.data;
+}
+
+
+export async function sendMessage(data) {
+  const response = await axios.post(API_URL + "message/add", { data });
   return response.data;
 }
 
@@ -40,7 +56,7 @@ export function removeCourse (idUser,idCourse)  {
 };
 
 export function joinCourse (idUser,idCourse)  {
-  
+  console.log("idUser: ",idUser,"idCourse: ",idCourse)
   return  axios.post(API_URL + `user/joinCourse/${idUser}/${idCourse}` );
 };
 

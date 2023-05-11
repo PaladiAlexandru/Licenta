@@ -1,10 +1,37 @@
 .chat-container {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     height: 100%;
     background-color: #f4f4f8;
     font-family: Arial, sans-serif;
   }
+  .chat-tabs {
+    display: flex;
+    flex-direction: column;
+    border-right: 3px solid #ccc; /* Add a border on the right side */
+    
+    padding-right: 10px; /* Add some padding on the right side */
+  }
+  .chat-tab {
+    width: fit-content;
+    padding: 10px;
+    cursor: pointer;
+    border-top: 2px solid transparent;
+    border-bottom: 2px solid transparent;
+    border-left: 2px solid transparent;
+    border-right: 2px solid transparent;
+   
+  }
+  
+  .chat-tab.active {
+    border-bottom-color: #353535;
+    border-top-color: #353535;
+    border-left-color: #353535;
+    border-right-color: #353535;
+   
+  }
+  
+  
   
   .chat-header {
     display: flex;
@@ -138,4 +165,9 @@
     font-size: 18px;
     cursor: pointer;
   }
+  .chat {
+    max-width: 100%;
+    flex-grow: 1;
+  }
+  
   

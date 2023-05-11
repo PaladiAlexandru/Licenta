@@ -28,44 +28,33 @@ const Feed = () =>{
  
   useEffect(() => {
     let aux = [];
+    debugger
    user[0].id && getCourses(user[0].id).then(response => {
-     response.data.rows.forEach(course => {
-       aux.push(course);
-       
-     })
-     setCourses(aux);
+    debugger
+     
+     setCourses(response.data);
      
    })
   
   },[])
 
   useEffect(() => {
-    
-    
+    debugger
     let aux = [];
-    
-   user[0].id && courses.length !== 0 && 
-        ownedCourse(user[0].id).then(resp =>{
-          resp.data.forEach(crse => {
-            debugger
-            const found = courses.find(element => element.id == crse.id_course);
-            if (found !== undefined){
-                  aux.push(found);
-            }
-          
-            
-              
-            
-          
-          })
-          setAllCourses(aux);
-        
-        })
-      
+    if (user[0].id && courses?.length !== 0) {
+      ownedCourse(user[0].id).then(resp => {
+        resp.data.forEach(crse => {
+          debugger
+          const found = courses?.find(element => element.course_id == crse.id_course);
+          if (found !== undefined) {
+            aux.push(found);
+          }
+        });
+        setAllCourses(aux);
+      });
+    }
+  }, [courses]);
   
-   
-   
-  },[courses])
   
   return (
     <div className="container">

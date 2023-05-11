@@ -124,6 +124,39 @@ app.post('/teacher/courses', async function(req, res)  {
   
   
 })
+app.post('/message/add', async function(req, res)  {
+  if(response!= 'undefined'){
+    console.log(req.body.data)
+    let response =await users.addMessage(req.body.data);
+      res.status(200).send(response);
+    
+  }
+ 
+
+
+})
+app.get('/messages/:idReceiver/:idSender', async function(req, res)  {
+console.log("AJUNG")
+  if(response!= 'undefined'){
+    let response =await users.getMessages(req.params.idReceiver,req.params.idSender);
+      res.status(200).send(response);
+    
+  }
+ 
+
+
+})
+app.get('/users', async function(req, res)  {
+  console.log("AJUNG")
+    if(response!= 'undefined'){
+      let response =await users.getAllUsers();
+        res.status(200).send(response);
+      
+    }
+   
+  
+  
+  })
 app.post('/teacher/addCourse',async function(req, res)  {
   if(response!= 'undefined'){
     let response =await users.addCourse(req.body.data);
@@ -174,7 +207,6 @@ app.post('/teacher/ownedCourse',async function(req, res)  {
 
 })
 app.post('/grades', async function(req, res)  {
-  console.log("////////////////" + req.body.courseId+"MATA")
   if(response!= 'undefined'){
     let response =await users.getGrades(req.body.courseId);
      

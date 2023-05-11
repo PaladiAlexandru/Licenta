@@ -1,12 +1,12 @@
-import Button  from "./Button"
+import Button  from "./Table/Button"
 import React, {useEffect, useState} from 'react'
 import {useDispatch} from 'react-redux'
 import { useSelector } from "react-redux"
-import { removeProf , addProf } from "../../services/mod.service"
+import { removeProf , addProf } from "../services/mod.service"
 
-import { ADD_PROFESOR, REMOVE_ADMIN } from '../../actions/mod';
+import { ADD_PROFESOR, REMOVE_ADMIN } from '../actions/mod';
 
-function Table({colNames,data}) {
+function TableInsertGrades({colNames,data}) {
     const dispatch =useDispatch();
     const users = data
     debugger
@@ -43,21 +43,8 @@ function Table({colNames,data}) {
                 {users&&users.map(user => (
                         
                         <tr key={user.id}>
-                        {Object.entries(user).map(tag=> 
-                            (console.log(user))&&
-
-                            (<td key={tag[1]}>{tag[1]}</td>)
-                        
-                            
-                        )}
-                         {  
-                            
-                            user&&user.role === 'secretar' ? '' :
-                            user&&user.role !== 'profesor' ? 
-                            <td> <Button data={"Adaugă Profesor"} type="primary" index={user.id} handleOnClick={handleAdd}></Button></td> :
-                            <td> <Button data={"Șterge Profesor"} type="danger" index={user.id} handleOnClick={handleRemove}></Button></td>
-                            
-                        }
+                        <td>{user.name}</td>
+                        <td><input defaultValue={user.id} id={user.name}></input></td>
                        
                        
                         
@@ -71,4 +58,4 @@ function Table({colNames,data}) {
   )
 }
 
-export default Table
+export default TableInsertGrades

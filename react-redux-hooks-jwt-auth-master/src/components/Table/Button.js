@@ -5,7 +5,7 @@ import { useEffect } from 'react';
 import { ADD_PROFESOR, REMOVE_ADMIN } from '../../actions/mod';
 
 function Button({data, type, index, handleOnClick}) {
-    debugger
+   
     const btnType="btn btn-"+type;
    
   return (
