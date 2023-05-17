@@ -21,6 +21,10 @@ export async function getUsers (courseName)  {
   
   return   await axios.post(API_URL + "teacher/getCourseUsers", { courseName });
 };
+export async function getGradesType (courseId)  {
+  
+  return   await axios.post(API_URL + "teacher/getGradesType", { courseId });
+};
 export async function getAllUsers ()  {
   
   return   await axios.get(API_URL + "users");

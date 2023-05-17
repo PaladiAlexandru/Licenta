@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { addCourse, getCourse } from '../services/teacher-service';
 import { useSelector } from "react-redux";
 import Form from 'react-bootstrap/Form';
@@ -6,6 +6,7 @@ import { useRef } from "react";
 
 const AddCourse = (props) => {
   const [checked1, setChecked1] = useState(true);
+  const [onTheWayChecked, setOnTheWayChecked] = useState(false);
   const [oneTestChecked, setOneTestChecked] = useState(false);
   const [twoTestsChecked, setTwoTestsChecked] = useState(false);
   const { user: currentUser } = useSelector((state) => state.auth);
@@ -13,6 +14,11 @@ const AddCourse = (props) => {
   const [formSubmited, setFormSubmited] = useState(false);
   const formRef = useRef(null);
  
+  useEffect(()=>{
+    debugger
+    if(checked1)
+      document.getElementById("check").value=0;
+  },[checked1])
 
   const handleSubmit = async(event) => {
     event.preventDefault();
@@ -21,7 +27,9 @@ const AddCourse = (props) => {
       description: document.getElementById("courseDescription").value,
       type: '',
       final_exam: document.getElementById("examDate").value,
-      teacher_id: currentUser.rows[0].id
+      teacher_id: currentUser.rows[0].id,
+      nr_of_grades: 0,
+      weights: []
     };
     const radioButtons = document.querySelectorAll('input[name="gridRadios"]');
     for (const radioButton of radioButtons) {
@@ -30,6 +38,28 @@ const AddCourse = (props) => {
         break;
       }
     }
+    if(data.type == "Two tests + Final exam"){
+      data.nr_of_grades = 3
+      data.weights.push(document.getElementById("grade11").value)
+      data.weights.push(document.getElementById("grade12").value)
+      data.weights.push(document.getElementById("grade13").value)
+    }
+      
+    else if(data.type == "One test + Final exam"){
+      data.nr_of_grades = 2;
+      data.weights.push(document.getElementById("grade1").value)
+      data.weights.push(document.getElementById("finalExam1").value)
+    }
+        
+      else{
+        data.nr_of_grades = document.getElementById("check").value;
+        for(var j =0; j< data.nr_of_grades; j++){
+          data.weights.push(document.getElementsByName("member"+j)[0].value)
+        }
+      }
+         
+    debugger
+   
     
     const localData = await getCourse(data);
 
@@ -48,17 +78,19 @@ const AddCourse = (props) => {
 
   }
   function handleTwoTestsCheck(e) {
+    debugger
     setChecked1(true)
+    displayGrades(0)
     setOneTestChecked(false)
     setTwoTestsChecked(true);
   }
   function handleOneTestCheck(e) {
     setChecked1(true)
+    displayGrades(0)
     setTwoTestsChecked(false);
     setOneTestChecked(true);
   }
-  function displayGrades(e) {
-    var number = e.currentTarget.value;
+  function displayGrades(number) {
     var container = document.getElementById("OnTheWayContainer");
 
     // Remove every children it had before
@@ -85,7 +117,10 @@ const AddCourse = (props) => {
       var span = document.createElement("span")
       span.className = "input-group-text";
       span.id = "inputGroup-sizing-sm";
+     
       span.innerHTML = "Grade " + (i + 1);
+      if(i+1 == number)
+        span.innerHTML = "Final exam"
 
 
       div.className = "input-group-prepend";
@@ -125,7 +160,7 @@ const AddCourse = (props) => {
                   </label>
                   <Form.Group className="mb-3" >
                     <Form.Label>Number of grades</Form.Label>
-                    <Form.Control placeholder="num of grades" id='check' disabled={checked1} onInput={(e) => displayGrades(e)} />
+                    <Form.Control placeholder="num of grades" id='check' disabled={checked1} onInput={(e) => displayGrades(e.currentTarget.value)} />
                     <div className="form-group" id="OnTheWayContainer">
                       <div className="input-group input-group-sm mb-3">
 
@@ -167,7 +202,7 @@ const AddCourse = (props) => {
 
                       {oneTestChecked && (
   <Form.Group className="mb-3">
-    <div className="form-group" id="TwoTestsContainer">
+    <div className="form-group" id="OneTestContainer">
       <div className="mb-3">
         <div style={{ display: 'block' }}>
           <label className="form-check-label" htmlFor="grade1">

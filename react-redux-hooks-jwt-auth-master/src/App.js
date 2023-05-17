@@ -116,13 +116,13 @@ const App = () => {
                 </Link>
               </li>
             )}
-            {currentUser && currentUser.rows[0] && currentUser.rows[0].role.includes("profesor") && (
+            {/* {currentUser && currentUser.rows[0] && currentUser.rows[0].role.includes("profesor") && (
               <li className="nav-item">
                 <Link to={"/Feed"} className="nav-link">
                   Feed
                 </Link>
               </li>
-            )}
+            )} */}
           </div>
 
           {currentUser && currentUser.rows[0] ? (

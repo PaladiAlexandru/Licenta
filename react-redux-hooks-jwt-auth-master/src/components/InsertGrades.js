@@ -1,21 +1,22 @@
 import React, { useEffect, useState } from "react";
-import { addCourse, addGrades, getUsers } from '../services/teacher-service';
+import { addCourse, addGrades, getGradesType, getUsers } from '../services/teacher-service';
 import { useSelector } from "react-redux";
 import getCourses from '../services/teacher-service'
 import Table from '../components/Table/Table'
 import Button from "./Table/Button";
 import NoStudentsCard from "./NoStudentsCard";
-//import './InsertGrades.css'
 import TableInsertGrades from'./TableInsertGrades.js';
 const colNames = ['Name', 'Grade']
 const InsertGrades = (props) => {
 
   const user = useSelector((state) => state.auth.user.rows)
   const [users, setUsers] = useState([]);
-  const [courseName, setCourseName] = useState('');
+  const [updatedUsers,setUpdatedUsers] = useState([]);
+  const [course, setCourse] = useState('');
   const [courses, setCourses] = useState([]);
+  const [allGradeTypes, setAllGradeTypes] = useState([]);
   const [gradeType, setGradeType] = useState(''); // added state for grade type
-  const [courseSelected,setCourseSelected] = useState(false);
+  const [isCourseSelected,setCourseSelected] = useState(false);
 
   getCourses(user[0].id).then(response => {
     console.log(response.data.rows);
@@ -24,30 +25,106 @@ const InsertGrades = (props) => {
   useEffect(() => {
     let aux = [];
     user[0].id && getCourses(user[0].id).then(response => {
-      debugger
+     
       response.data.forEach(course => {
         aux.push(course);
       })
       setCourses(aux);
     })
   }, [])
+ 
 
   useEffect(() => {
     let aux = [];
-    courseName && getUsers(courseName).then(response => {
+    course && getUsers(course.name).then(response => {
       
       response.data.forEach(user => {
         aux.push(user);
+        
       })
       setUsers(aux);
-      debugger
+      
+      
+      
+
     })
-  }, [courseName])
+    
+    
+
+  }, [course])
+
+  useEffect(() => {
+    course && getGradesType(course.course_id).then(response => {
+      let aux2 = [];
+      const existingGradeTypes = new Set(); // Create a set to store existing grade types
+  
+      response.data.rows.forEach(grade => {
+        if (!existingGradeTypes.has(grade.grade_type)) {
+          aux2.push(grade);
+          existingGradeTypes.add(grade.grade_type); // Add the grade type to the set
+        }
+      });
+  
+      setAllGradeTypes(aux2);
+    });
+  }, [course]);
+  
+  useEffect(() => {
+    if (allGradeTypes.length > 0 && gradeType !== '') {
+      const fetchData = async () => {
+        const updatedUsersCopy = [...users];
+  
+        for (let i = 0; i < updatedUsersCopy.length; i++) {
+          const user = updatedUsersCopy[i];
+  
+          try {
+            const response = await getGradesType(course.course_id); // Assuming getGradesType fetches individual user grades based on the course ID
+            const grades = response.data.rows;
+  
+            for (let j = 0; j < grades.length; j++) {
+              const grade = grades[j];
+  
+              if (grade.grade_type === gradeType && grade.id_user === user.user_id) {
+                updatedUsersCopy[i].existingGrade = grade.grade;
+                break;
+              }
+            }
+          } catch (error) {
+            console.error(error);
+          }
+        }
+  
+        setUpdatedUsers(updatedUsersCopy);
+      };
+  
+      fetchData();
+    }
+  }, [users, gradeType, allGradeTypes, course]);
+  
+
+  
+  
+
+  useEffect(()=>{
+    let v = updatedUsers
+    debugger
+   
+  },[updatedUsers])
+
+  useEffect(()=>{
+    let sp = users
+    let vt = course
+
+
+  },[users,course])
+  
+ 
 
   const fillInput = (e) => {
-    setCourseName(e.currentTarget.childNodes[0].data);
+    const crs = courses.find(crs => crs.name == e.currentTarget.childNodes[0].data)
+    setCourse(crs);
     console.log(e);
-    debugger
+    
     document.getElementById("chooseCourse").textContent = e.currentTarget.childNodes[0].data
     setCourseSelected(true);
     document.getElementById("myDropdown").classList.remove("show");
@@ -55,6 +132,7 @@ const InsertGrades = (props) => {
 
   const fillGradeType = (e) => { // added function to set grade type
     setGradeType(e.currentTarget.childNodes[0].data);
+    
     console.log(e);
     document.getElementById("chooseGradeType").textContent = e.currentTarget.childNodes[0].data
     document.getElementById("myDropdown2").classList.remove("show");
@@ -86,17 +164,23 @@ const InsertGrades = (props) => {
 
   const handleSubmit = (e) => {
     console.log("USERS:" + users)
-    debugger
+   
     let data = []
 
     users.forEach(user1 => {
       let info = {
         courseId: user1.course_id,
-        userId: user1.id,
+        userId: user1.user_id,
         grade: parseInt(document.getElementById(user1.name).value),
-        gradeType: gradeType, // added grade type to info object
-        owner: user[0].id
+        owner: user[0].id,
+        idGrade: 0
+        
       }
+      allGradeTypes.forEach(grade =>{
+        if(grade.grade_type == gradeType){
+          info.idGrade = grade.grade_id;
+        }
+      })
       data.push(info);
     })
     addGrades(data);
@@ -115,20 +199,28 @@ const InsertGrades = (props) => {
             ))}
           </div>
           <div><h3>Second, choose the type of grade</h3></div>
-          <button onClick={() => myFunction2() } disabled={!courseSelected} className="dropbtn" id="chooseGradeType">Choose Grade Type</button>
+          <button onClick={() => myFunction2() } disabled={!isCourseSelected} className="dropbtn" id="chooseGradeType">Choose Grade Type</button>
           <div id="myDropdown2" className="dropdown-content">
-            <a onClick={(e) => fillGradeType(e)}>Test</a>
-            <a onClick={(e) => fillGradeType(e)}>Exam</a>
+              {
+               allGradeTypes&& allGradeTypes.map(grade =>(<a key={grade.grade_id} onClick={(e) => fillGradeType(e)}>{grade.grade_type}</a>) )
+            
+
+            }
+            
+           
           </div>
         </div>
       </header>
       <div className="col-md-6">
-        {users.length > 0 ?
-          <div><TableInsertGrades
-            colNames={colNames}
-            data={users}
-          />
-          <button onClick={(e) => handleSubmit(e)} type="button" className="btn btn-success" >Submit </button></div>: courseName? <NoStudentsCard />:""
+        {users.length > 0 ? 
+            gradeType ?
+              <div><TableInsertGrades
+                colNames={colNames}
+                data={updatedUsers}
+              />
+              <button onClick={(e) => handleSubmit(e)} type="button" className="btn btn-success" >Submit </button></div>
+              : ""
+              : course ? <NoStudentsCard />: ""
         }
         
       </div>

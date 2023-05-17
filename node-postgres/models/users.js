@@ -13,7 +13,7 @@ const pool = new Pool({
 const addCourse = (data) => {
   return new Promise(async function(resolve, reject) {
 
-    const { name,description,type,final_exam,teacher_id } = data
+    const { name,description,type,final_exam,teacher_id,nr_of_grades, weights} = data
     let course_id=1;
     console.log(data);
     pool.query('INSERT INTO courses (name, description,type,exam_date) VALUES ($1, $2,$3,$4) ', [name, description,type,final_exam], (error, results) => {
@@ -35,8 +35,29 @@ const addCourse = (data) => {
         }
         resolve(`A new course_users has been added`)
       })
-    })
+
     
+        for(var i=1;i<=nr_of_grades;i++){
+          var type = "Test" + i;
+          if(i== nr_of_grades)
+            type = "Final exam";
+          pool.query(
+            'INSERT INTO grades (grade_type, weight, course_id) VALUES ($1, $2, $3)',
+            [type, weights[i-1], results.rows[0].id],
+            (error, results) => {
+              console.log('dada prostanme');
+              if (error) {
+                reject(error);
+              }
+              resolve(`A new course_users has been added`);
+            }
+          );
+        }
+     
+      }
+      
+    )
+   
      
   })
 }
@@ -187,31 +208,73 @@ const getCourseUsers = (courseName) => {
       })
     }) 
   }
-
-  const sendGrades = (data) => {
+  const getGradesType = (courseId) => {
     return new Promise(function(resolve, reject) {
-      data.forEach(user => {
-        const { courseId, userId, grade,owner }= user;
-        pool.query("INSERT INTO public.notes( id_course, id_user, grade)VALUES ($1, $2, $3)", [ courseId, userId, grade ], (error, results) => {
-          if (error) {
-            reject(error)
-          }
-        })
-        console.log("userId:",userId)
-        pool.query("INSERT INTO public.feed( id_course, id_user,owner)VALUES ($1, $2, $3)", [ courseId, userId, owner], (error, results) => {
-          if (error) {
-            reject(error)
-          }
-          resolve(`Grades have been added to the feed`)
-        })
+     
+      pool.query("SELECT * FROM grades g LEFT JOIN notes n ON g.grade_id = n.id_grade WHERE g.course_id = $1 ORDER BY ARRAY_POSITION(ARRAY['Test1', 'Test2', 'Test3','Test4', 'Test5', 'Test6','Test7', 'Test8', 'Test9','Test10', 'Test11', 'Test12', 'Final exam'], grade_type)", [courseId], (error, results) => {
+        if (error) {
+          reject(error)
+        }
+        console.log("AMAMAAAAAAAAAAAAAAAAAA ", results, " Courseid ", courseId)
+        resolve(results)
       })
       
       
-      });
+       
+
+        
+          
+        
+      })
+      
+      
 
       
      
   }
+  const sendGrades = (data) => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        for (const user of data) {
+          const { courseId, userId, idGrade, owner, grade } = user;
+          console.log("gradeId:", idGrade);
+  
+          // Check if the record already exists
+          const checkQuery = "SELECT * FROM public.notes WHERE id_course = $1 AND id_user = $2 AND id_grade = $3";
+          const checkResult = await pool.query(checkQuery, [courseId, userId, idGrade]);
+  
+          if (checkResult.rows.length > 0) {
+            // Update the existing grade
+            const updateQuery = "UPDATE public.notes SET grade = $1 WHERE id_course = $2 AND id_user = $3 AND id_grade = $4";
+            await pool.query(updateQuery, [grade, courseId, userId, idGrade]);
+          } else {
+            // Insert a new record
+            const insertQuery = "INSERT INTO public.notes (id_course, id_user, id_grade, grade) VALUES ($1, $2, $3, $4)";
+            await pool.query(insertQuery, [courseId, userId, idGrade, grade]);
+  
+            // Check if the record already exists in public.feed
+            const checkFeedQuery = "SELECT * FROM public.feed WHERE id_course = $1 AND id_user = $2 AND owner = $3";
+            const checkFeedResult = await pool.query(checkFeedQuery, [courseId, userId, owner]);
+  
+            if (checkFeedResult.rows.length === 0) {
+              // Insert a new entry into public.feed
+              const feedQuery = "INSERT INTO public.feed (id_course, id_user, owner) VALUES ($1, $2, $3)";
+              await pool.query(feedQuery, [courseId, userId, owner]);
+            }
+          }
+  
+          console.log("userId:", userId);
+        }
+  
+        resolve("Grades have been added to the feed");
+      } catch (error) {
+        reject(error);
+      }
+    });
+  };
+  
+  
+  
   // const setExpectation = (data) => {
   //   console.log(data.idUser+ "////////////////////////")
   //   return new Promise(function(resolve, reject) {
@@ -306,18 +369,40 @@ const getCourseUsers = (courseName) => {
       })
     })
   }
-  const getGrades = (id) => {
-   console.log("id:::" + id)
+  const getGrades = (idCourse,idUser) => {
+    console.log("ID USER ", idUser)
     return new Promise(function(resolve, reject) {
-      pool.query('SELECT * FROM notes INNER JOIN users ON notes.id_user=users.id WHERE notes.id_course= $1', [id],(error, results) => {
+      const query = `
+        SELECT notes.grade, users.name, grades.grade_type, courses.name,grades.weight
+        FROM notes
+        INNER JOIN users ON notes.id_user = users.id
+        INNER JOIN grades ON notes.id_grade = grades.grade_id
+        INNER JOIN courses ON notes.id_course = courses.id
+        WHERE notes.id_course = $1 AND notes.id_user = $2
+      `;
+      pool.query(query, [idCourse,idUser], (error, results) => {
         if (error) {
-          console.log(error)
-          reject(error)
+          console.log(error);
+          reject(error);
         }
-        resolve(results);
-      })
-    }) 
-  }
+        console.log("ZZZZZZZZZZZZZZZZZZZZZZZZZZZZ ", results )
+                resolve(results);
+      });
+    });
+  };
+  
+  const getGrade = (userId,courseId,type) => {
+    console.log("id:::" + id)
+     return new Promise(function(resolve, reject) {
+       pool.query('SELECT * FROM notes INNER JOIN users ON notes.id_user=users.id WHERE notes.id_course= $1', [id],(error, results) => {
+         if (error) {
+           console.log(error)
+           reject(error)
+         }
+         resolve(results);
+       })
+     }) 
+   }
  
   
   module.exports = {
@@ -339,6 +424,7 @@ const getCourseUsers = (courseName) => {
     getCourse,
     getMessages,
     getAllUsers,
-    addMessage
+    addMessage,
+    getGradesType
   
   }

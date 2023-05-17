@@ -182,6 +182,16 @@ app.post('/teacher/sendGrades',async function(req, res)  {
 
 
 })
+app.post('/teacher/getGradesType',async function(req, res)  {
+  if(response!= 'undefined'){
+    let response =await users.getGradesType(req.body.courseId);
+      res.status(200).send(response);
+    
+  }
+ 
+
+
+})
 // app.post('/progression',async function(req, res)  {
 //   console.log("WAZAAAAAA")
 //   if(response!= 'undefined'){
@@ -208,7 +218,7 @@ app.post('/teacher/ownedCourse',async function(req, res)  {
 })
 app.post('/grades', async function(req, res)  {
   if(response!= 'undefined'){
-    let response =await users.getGrades(req.body.courseId);
+    let response =await users.getGrades(req.body.courseId,req.body.userId);
      
       res.status(200).send(response);
     

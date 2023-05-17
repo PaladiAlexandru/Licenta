@@ -8,15 +8,22 @@ import { ADD_PROFESOR, REMOVE_ADMIN } from '../actions/mod';
 
 function TableInsertGrades({colNames,data}) {
     const dispatch =useDispatch();
-    const users = data
-    debugger
+    const [users,setUsers] = useState([]);
+    useEffect(()=>{
+        setUsers(data);
+    },[data])
+    
+    useEffect(()=>{
+        let x = users;
+        
+    },[users])
     let index=0;
     
     
     const handleRemove = (e) => {
         
         dispatch(REMOVE_ADMIN(e.currentTarget.id))
-        debugger
+      
         removeProf(e.currentTarget.id);
               
     
@@ -42,9 +49,9 @@ function TableInsertGrades({colNames,data}) {
                 <tbody>
                 {users&&users.map(user => (
                         
-                        <tr key={user.id}>
+                        <tr key={user.user_id}>
                         <td>{user.name}</td>
-                        <td><input defaultValue={user.id} id={user.name}></input></td>
+                        <td><input defaultValue={user.existingGrade} id={user.name}></input></td>
                        
                        
                         
