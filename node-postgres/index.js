@@ -227,6 +227,18 @@ app.post('/grades', async function(req, res)  {
 
 
 })
+app.post('/getProgression', async function(req, res)  {
+  console.log("AJUNGEEEEEEEEEEEEEEE")
+  if(response!= 'undefined'){
+    let response =await users.getProgression(req.body.idUser,req.body.idCourse);
+     console.log("Ajunge tata")
+      res.status(200).send(response);
+    
+  }
+
+
+
+})
 app.post('/teacher/getCourseUsers',async function(req, res)  {
   if(response!= 'undefined'){
     let response =await users.getCourseUsers(req.body.courseName);

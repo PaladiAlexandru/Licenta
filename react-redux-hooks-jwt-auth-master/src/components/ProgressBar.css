@@ -1,0 +1,34 @@
+.progressBar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: fit-content;
+    margin-left: 20px;
+  }
+  
+  .circle {
+    height: 30px;
+    width: 30px;
+    border: 1px solid #000;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 20px;
+    position: relative;
+  }
+  
+  .line {
+    flex-grow: 1;
+    height: 1px;
+    background: #000;
+  }
+  
+  .completed {
+    background: #0f0;
+  }
+  
+  .active {
+    background: green;
+  }
+  

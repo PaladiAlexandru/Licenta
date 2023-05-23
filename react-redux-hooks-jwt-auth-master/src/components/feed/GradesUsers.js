@@ -11,13 +11,18 @@ import { faDownload } from '@fortawesome/free-solid-svg-icons';
 const GradesUsers = () => {
   const [grades, setGrades] = useState([]);
   const [currentGrade, setCurrentGrade] = useState(0);
-  const courseId = useSelector((state) => state);
+  const courseId = useSelector((state) => state.courseId.id); // Extract the courseId value from the state
 
   useEffect(() => {
-    if (store.getState().courseId.id) {
-      getGrades(store.getState().courseId.id, courseId.auth.user.rows[0].id).then((response) => {
-        setGrades(response.data.rows);
-      });
+    if (courseId && store.getState().auth.user?.rows[0]?.id) { // Add null check for courseId and user ID
+      getGrades(courseId, store.getState().auth.user.rows[0].id) // Pass courseId and user ID to getGrades function
+        .then((response) => {
+          setGrades(response.data.rows);
+        })
+        .catch((error) => {
+          console.log(error);
+          // Handle the error here
+        });
     }
   }, [courseId]);
 
@@ -53,45 +58,7 @@ const GradesUsers = () => {
   );
 
   const styles = StyleSheet.create({
-    page: {
-      fontFamily: 'Helvetica',
-      paddingTop: 35,
-      paddingBottom: 65,
-      paddingHorizontal: 35,
-    },
-    header: {
-      marginBottom: 20,
-    },
-    courseName: {
-      fontSize: 18,
-      fontWeight: 'bold',
-    },
-    table: {
-      display: 'table',
-      width: 'auto',
-      marginVertical: 10,
-    },
-    tableRow: {
-      flexDirection: 'row',
-      borderBottomWidth: 1,
-      borderBottomColor: '#AAAAAA',
-      alignItems: 'center',
-      height: 24,
-      fontStyle: 'bold',
-    },
-    tableHeaderCell: {
-      width: '33.33%',
-      borderBottomColor: '#AAAAAA',
-      borderBottomWidth: 1,
-      textAlign: 'center',
-    },
-    tableCell: {
-      width: '33.33%',
-      textAlign: 'center',
-    },
-    downloadIcon: {
-      marginTop: 20,
-    },
+    // Stylesheet styles here
   });
 
   return (
@@ -108,23 +75,23 @@ const GradesUsers = () => {
             </thead>
             <tbody>
               {grades.map((grade, id) => (
-<tr key={id}>
-<td>{grade.grade}</td>
-<td>{grade.grade_type}</td>
-</tr>
-))}
-</tbody>
-</Table>
-<h3>Your current grade is: {currentGrade}</h3>
-<div className='download-icon'>
-<PDFDownloadLink document={<PDFDocument data={grades} courseName={grades[0].name} />} fileName='grades.pdf'>
-<FontAwesomeIcon icon={faDownload} /> Download PDF
-</PDFDownloadLink>
-</div>
-</>
-)}
-</div>
-);
+                <tr key={id}>
+                  <td>{grade.grade}</td>
+                  <td>{grade.grade_type}</td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+          <h3>Your current grade is: {currentGrade}</h3>
+          <div className='download-icon'>
+            <PDFDownloadLink document={<PDFDocument data={grades} courseName={grades[0].name} />} fileName='grades.pdf'>
+              <FontAwesomeIcon icon={faDownload} /> Download PDF
+            </PDFDownloadLink>
+          </div>
+        </>
+      )}
+    </div>
+  );
 };
 
 export default GradesUsers;

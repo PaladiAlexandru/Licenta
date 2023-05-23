@@ -1,97 +1,140 @@
 import React, { useEffect, useState } from "react";
 import UserCourse from "./UserCourse";
-import store from '../store'
+import { useSelector } from "react-redux";
+import getCourses, {
+  getAllCourses,
+  removeCourse,
+  joinCourse,
+  getProgression
+} from "../services/teacher-service";
 
-import { useDispatch, useSelector} from "react-redux"
-import getCourses, { getAllCourses, removeCourse, joinCourse} from '../services/teacher-service'
-import { LOAD_COURSES } from "../actions/mod";
-import Modal from "./Modal";
-
-const UserCourses = () =>{
-
-   const user= useSelector((state) => state.auth.user?.rows)
-   const [joinedCourses, setJoinedCourses] = useState([]);
-   const [allCourses, setAllCourses] = useState([]);
-  
-   useEffect(() => {
-    getAllCourses().then(response =>{
-      
-      setAllCourses(response.data);
-      debugger
-    })
-    getCourses(user[0].id).then(response =>{
-      setJoinedCourses(response.data);
-      debugger
-    })
-  },[])
+const UserCourses = () => {
+  const user = useSelector((state) => state.auth.user?.rows);
+  const [joinedCourses, setJoinedCourses] = useState([]);
+  const [allCourses, setAllCourses] = useState([]);
+  const [progression, setProgression] = useState({});
+  const [loadingProgression, setLoadingProgression] = useState(true);
 
   useEffect(() => {
-    debugger
-    const filteredCourses = allCourses.filter(course => {
-      return !joinedCourses.some((c) => c.course_id === course.id);
+    const fetchProgressionData = async () => {
+      setLoadingProgression(true);
+      const promises = joinedCourses.map((course) =>
+        getProgression(user[0].id, course.course_id ? course.course_id : course.id)
+      );
+      const results = await Promise.all(promises);
+      const progressionData = results.reduce((data, result, index) => {
+        const course = joinedCourses[index];
+        const courseId = course.course_id ? course.course_id : course.id;
+        return {
+          ...data,
+          [courseId]: result.data.rows
+        };
+      }, {});
+      setProgression(progressionData);
+      setLoadingProgression(false);
+    };
+
+    if (joinedCourses.length > 0) {
+      fetchProgressionData();
+    }
+  }, [joinedCourses, user]);
+
+  useEffect(() => {
+    getAllCourses().then((response1) => {
+      getCourses(user[0].id).then((response) => {
+        setJoinedCourses(response.data);
+        const filteredCourses = response1.data.filter((course1) => {
+          return !response.data.some((course) => {
+            const courseId1 = course1.course_id ? course1.course_id : course1.id;
+            const courseId2 = course.course_id ? course.course_id : course.id;
+            return courseId1 === courseId2;
+          });
+        });
+        setAllCourses(filteredCourses);
+      });
     });
-    setAllCourses(filteredCourses);
-  }, [joinedCourses])
-  
- 
-  
+  }, [user]);
 
   const handleJoinBtn = (e) => {
-  const courseId = parseInt(e.currentTarget.id);
+    const courseId = parseInt(e.currentTarget.id);
+    joinCourse(user[0].id, courseId)
+      .then(() => {
+        setJoinedCourses((prevState) => {
+          const courseToAdd = allCourses.find(
+            (course) => (course.course_id ? course.course_id : course.id) === courseId
+          );
   
-  // Make API call to join the course
-  joinCourse(user[0].id, courseId);
+          if (courseToAdd) {
+            setAllCourses((prevState) => prevState.filter((course) => (course.course_id ? course.course_id : course.id) !== courseId));
+            return [...prevState, courseToAdd];
+          }
   
-  // Update the joinedCourses state
-  allCourses.forEach(course =>{
-    if(course.id == courseId){
-      setJoinedCourses(prevState => [...prevState, course]);
-    }
-  })
+          return prevState;
+        });
+      })
+      .catch((error) => {
+        // Handle error if necessary
+      });
+  };
   
   
-  // Remove the course from allCourses state
-  setAllCourses(prevState => prevState.filter(course => course.id !== courseId));
-};
+  
+  const handleLeaveBtn = (e) => {
+    const courseId = parseInt(e.currentTarget.id);
 
-const handleLeaveBtn = (e) => {
-  const courseId = parseInt(e.currentTarget.id);
-  debugger
-  // Make API call to leave the course
-  removeCourse(user[0].id, courseId);
-  
-  // Update the joinedCourses state
-  setJoinedCourses(prevState => prevState.filter(course => course.course_id !== courseId));
-  
-  // Add the course back to allCourses state
-  getAllCourses().then(response => {
-    setAllCourses(response.data.filter(course => !joinedCourses.some(jc => jc.course_id === course.id)));
-  });
-  setJoinedCourses(prevState => prevState.filter(course => course.id !== courseId));
-};
+    removeCourse(user[0].id, courseId)
+      .then(() => {
+        setJoinedCourses((prevState) =>
+          prevState.filter(
+            (course) => (course.course_id ? course.course_id : course.id) !== courseId
+          )
+        );
 
-  
+        const courseToAdd = joinedCourses.find(
+          (course) => (course.course_id ? course.course_id : course.id) === courseId
+        );
+
+        if (courseToAdd) {
+          setAllCourses((prevState) => [...prevState, courseToAdd]);
+        }
+      })
+      .catch((error) => {
+        // Handle error if necessary
+      });
+  };
+
   return (
     <div className="container">
       <header className="jumbotron">
-      
-        {joinedCourses.length ? (<h3>Your courses</h3>): ""}
-        {joinedCourses.length ? joinedCourses.map((course, id) => (
-          <UserCourse courseName={`${course.name}`} key={id} owned={true} handleOnClick={handleLeaveBtn} id={course.id} />
-        )): ""}
-
-          {allCourses &&  (<h3>All courses</h3>) }
-        {allCourses.length>0  && allCourses.map((course,id) => (
-          <UserCourse courseName={`${course.name}`} key={id} owned={false} handleOnClick={handleJoinBtn} id={course.id}/>
+        {joinedCourses.length ? <h3>Your courses</h3> : ""}
+        {joinedCourses.map((course, id) => (
+          <UserCourse
+            courseName={`${course.name}`}
+            key={id}
+            owned={true}
+            handleOnClick={(e) => handleLeaveBtn(e)}
+            id={course.course_id ? course.course_id : course.id}
+            progression={loadingProgression ? null : progression[course.course_id ? course.course_id : course.id]}
+          />
         ))}
-        
-       
-      
+        {allCourses.length > 0 && (
+          <div>
+            <h3>All courses</h3>
+            {allCourses.map((course, id) => (
+              <UserCourse
+                courseName={`${course.name}`}
+                key={id}
+                owned={false}
+                handleOnClick={handleJoinBtn}
+                id={course.course_id ? course.course_id : course.id}
+                progression={loadingProgression ? null : progression[course.course_id ? course.course_id : course.id]}
+              />
+            ))}
+          </div>
+        )}
       </header>
-      
-    </div> 
+    </div>
   );
-
-}
+};
 
 export default UserCourses;

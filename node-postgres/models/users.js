@@ -403,6 +403,31 @@ const getCourseUsers = (courseName) => {
        })
      }) 
    }
+ const getProgression = (id_user,id_course) => {
+  console.log("AJUNG FĂĂĂ")
+  return new Promise((resolve, reject) => {
+    const query = `
+      SELECT courses.nr_of_grades, grades.grade_id, grades.grade_type,courses.id
+      FROM courses
+      INNER JOIN grades ON courses.id = grades.course_id
+      INNER JOIN notes ON grades.grade_id = notes.id_grade
+      WHERE notes.id_user = $1 AND notes.id_course = $2
+    `;
+
+    pool.query(query, [id_user,id_course], (error, results) => {
+      if (error) {
+        console.log(error);
+        reject(error);
+      }
+
+      
+      console.log("CACAAAAAAAAAAAAA ", results)
+      resolve(results);
+    });
+  });
+};
+
+
  
   
   module.exports = {
@@ -425,6 +450,7 @@ const getCourseUsers = (courseName) => {
     getMessages,
     getAllUsers,
     addMessage,
-    getGradesType
+    getGradesType,
+    getProgression
   
   }

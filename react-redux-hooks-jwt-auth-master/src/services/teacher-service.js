@@ -12,8 +12,12 @@ export default function getCourses (index)  {
   
   return  axios.post(API_URL + "teacher/courses", { index:index });
 };
+export function getProgression (idUser,idCourse)  {
+  
+  return  axios.post(API_URL + "getProgression", { idUser,idCourse });
+};
 export function addCourse (data)  {
-  debugger
+  
   return  axios.post(API_URL + "teacher/addCourse", { data });
 };
 
