@@ -20,6 +20,10 @@ export function addCourse (data)  {
   
   return  axios.post(API_URL + "teacher/addCourse", { data });
 };
+export function editCourse (data)  {
+  debugger
+  return  axios.post(API_URL + "teacher/editCourse", { data });
+};
 
 export async function getUsers (courseName)  {
   
@@ -61,6 +65,10 @@ export function getAllCourses ()  {
 export function removeCourse (idUser,idCourse)  {
   
   return  axios.delete(API_URL + `user/removeCourse/${idUser}/${idCourse}` );
+};
+export function deleteCourse (idCourse)  {
+  
+  return  axios.delete(API_URL + `user/deleteCourse/${idCourse}` );
 };
 
 export function joinCourse (idUser,idCourse)  {

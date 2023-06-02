@@ -28,12 +28,11 @@ const GradesUsers = () => {
 
   useEffect(() => {
     if (grades.length > 0) {
-      const calculatedGrade = grades
-        .map((grade) => grade.weight * 0.1 * grade.grade)
-        .reduce((total, value) => total + value, 0);
+      const calculatedGrade = grades.reduce((total, grade) => total + (grade.weight * 0.01 * grade.grade), 0);
       setCurrentGrade(calculatedGrade);
     }
   }, [grades]);
+  
 
   const PDFDocument = ({ data, courseName }) => (
     <Document>

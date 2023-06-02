@@ -10,57 +10,122 @@ const pool = new Pool({
 });
 
 
-const addCourse = (data) => {
+const addCourse = async (data) => {
+  const { name, description, type, final_exam, teacher_id, nr_of_grades, weights } = data;
+
+  // Start a transaction
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    // Insert course
+    const insertCourseQuery = 'INSERT INTO courses (name, description, type, exam_date, nr_of_grades) VALUES ($1, $2, $3, $4, $5) RETURNING id';
+    const courseResult = await client.query(insertCourseQuery, [name, description, type, final_exam, nr_of_grades]);
+    const courseId = courseResult.rows[0].id;
+
+    // Insert into courses_users
+    const insertCoursesUsersQuery = 'INSERT INTO courses_users (course_id, user_id) VALUES ($1, $2)';
+    await client.query(insertCoursesUsersQuery, [courseId, teacher_id]);
+
+    // Insert grades
+    const insertGradesQuery = 'INSERT INTO grades (grade_type, weight, course_id) VALUES ($1, $2, $3)';
+    for (let i = 1; i <= nr_of_grades; i++) {
+      debugger
+      const gradeType = i == nr_of_grades ? 'Final exam' : `Test${i}`;
+      await client.query(insertGradesQuery, [gradeType, weights[i - 1], courseId]);
+    }
+
+    // If everything is successful, commit the transaction
+    await client.query('COMMIT');
+
+    return 'A new course has been added, a new course_users has been added, and new grades have been added';
+
+  } catch (e) {
+    await client.query('ROLLBACK');
+    throw e;
+  } finally {
+    client.release();
+  }
+};
+
+const editCourse = (data) => {
+  
   return new Promise(async function(resolve, reject) {
+    const { name, description, type, final_exam, nr_of_grades, weights, courseId } = data;
 
-    const { name,description,type,final_exam,teacher_id,nr_of_grades, weights} = data
-    let course_id=1;
-    console.log(data);
-    pool.query('INSERT INTO courses (name, description,type,exam_date) VALUES ($1, $2,$3,$4) ', [name, description,type,final_exam], (error, results) => {
-      if (error) {
-        reject(error)
-      }
-      resolve(`A new course has been added`)
-    })
-     pool.query('SELECT id FROM courses WHERE "name"=$1 ', [name], async(error, results) => {
-      if (error) {
-        reject(error)
-      }
-      await new Promise(r => setTimeout(r, 5000));
-      console.log("Result:" + results.rows[0])
-      pool.query('INSERT INTO courses_users (course_id,user_id) VALUES ($1, $2) ', [results.rows[0].id, teacher_id], (error, results) => {
-        
+    // Update the course information
+    pool.query(
+      'UPDATE courses SET name = $1, description = $2, type = $3, exam_date = $4, nr_of_grades = $5 WHERE id = $6',
+      [name, description, type, final_exam, nr_of_grades, courseId],
+      (error, results) => {
         if (error) {
-          reject(error)
+          reject(error);
         }
-        resolve(`A new course_users has been added`)
-      })
+        
+        // Update the weights for each grade type (excluding "Final exam")
+        const updatePromises = weights.slice(0, -1).map((weight, index) => {
+          const gradeType = `Test${index + 1}`;
 
-    
-        for(var i=1;i<=nr_of_grades;i++){
-          var type = "Test" + i;
-          if(i== nr_of_grades)
-            type = "Final exam";
+          return new Promise((resolve, reject) => {
+            pool.query(
+              'UPDATE grades SET weight = $1 WHERE grade_type = $2 AND course_id = $3',
+              [weight, gradeType, courseId],
+              (error, results) => {
+                if (error) {
+                  reject(error);
+                }
+                
+                resolve();
+              }
+            );
+          });
+        });
+
+        // Update the weight for "Final exam"
+        const finalExamWeight = weights[weights.length - 1];
+        const finalExamPromise = new Promise((resolve, reject) => {
           pool.query(
-            'INSERT INTO grades (grade_type, weight, course_id) VALUES ($1, $2, $3)',
-            [type, weights[i-1], results.rows[0].id],
+            'UPDATE grades SET weight = $1 WHERE grade_type = $2 AND course_id = $3',
+            [finalExamWeight, 'Final exam', courseId],
             (error, results) => {
-              console.log('dada prostanme');
               if (error) {
                 reject(error);
               }
-              resolve(`A new course_users has been added`);
+              
+              resolve();
             }
           );
-        }
-     
+        });
+
+        // Combine all update promises
+        const allUpdatePromises = [...updatePromises, finalExamPromise];
+
+        // Wait for all weight updates to finish
+        Promise.all(allUpdatePromises)
+          .then(() => resolve('Course has been edited'))
+          .catch((error) => reject(error));
       }
-      
-    )
-   
-     
-  })
-}
+    );
+  });
+};
+
+const getWeights = (courseId) => {
+  return new Promise(async function(resolve, reject) {
+    pool.query(
+      `SELECT grades.weight FROM grades WHERE grades.course_id = $1 
+      ORDER BY CASE WHEN grades.grade_type = 'Final exam' THEN 'ZZZ' ELSE grades.grade_type END`,
+      [courseId],
+      (error, results) => {
+        if (error) {
+          reject(error);
+        }
+        resolve(results);
+      }
+    );
+  });
+};
+
+
 const getCourse = (data) => {
   return new Promise(async function(resolve, reject) {
     
@@ -334,6 +399,34 @@ const getCourseUsers = (courseName) => {
       })
     })
   }
+  const deleteCourse = (idCourse) => {
+    return new Promise(function(resolve, reject) {
+      console.log("idCourse: ", idCourse);
+      pool.query(
+        "DELETE FROM courses_users WHERE course_id=$1",
+        [idCourse],
+        (error1, results1) => {
+          if (error1) {
+            reject(error1);
+          } else {
+            pool.query(
+              "DELETE FROM courses WHERE id=$1",
+              [idCourse],
+              (error2, results2) => {
+                if (error2) {
+                  reject(error2);
+                } else {
+                  resolve(`Course and relation removed with ID: ${idCourse}`);
+                }
+              }
+            );
+          }
+        }
+      );
+    });
+  };
+  
+  
   const joinCourse = (idUser,idCourse) => {
     return new Promise(function(resolve, reject) {
      
@@ -346,7 +439,7 @@ const getCourseUsers = (courseName) => {
     })
   }
   const removeProf = (id) => {
-    debugger
+    
     return new Promise(function(resolve, reject) {
      
       pool.query(" UPDATE users SET role='user' WHERE id=$1", [id], (error, results) => {
@@ -358,7 +451,7 @@ const getCourseUsers = (courseName) => {
     })
   }
   const addProf = (id) => {
-    debugger
+    
     return new Promise(function(resolve, reject) {
      
       pool.query(" UPDATE users SET role='profesor' WHERE id=$1", [id], (error, results) => {
@@ -451,6 +544,9 @@ const getCourseUsers = (courseName) => {
     getAllUsers,
     addMessage,
     getGradesType,
-    getProgression
+    getProgression,
+    getWeights,
+    editCourse,
+    deleteCourse
   
   }

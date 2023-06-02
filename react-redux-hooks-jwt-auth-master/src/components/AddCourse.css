@@ -1,0 +1,15 @@
+#OnTheWayContainer .short-input.form-control {
+    flex: initial !important;
+    width: 100px !important;
+    padding: 1.375rem 0.1rem;
+    display: block;
+    padding: 0.5em;
+  }
+  
+  .input-group .grade-label {
+    margin-right: 8px;
+  }
+  
+  .input-group {
+    margin-top: 10px;
+  }

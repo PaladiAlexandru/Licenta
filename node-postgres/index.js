@@ -92,6 +92,17 @@ app.delete('/user/removeCourse/:idUser/:idCourse', (req, res) => {
     res.status(500).send(error);
   })
 })
+
+app.delete('/user/deleteCourse/:idCourse', (req, res) => {
+  users.deleteCourse(req.params.idCourse)
+  .then(response => {
+  
+    res.status(200).send(response);
+  })
+  .catch(error => {
+    res.status(500).send(error);
+  })
+})
 app.post('/user/joinCourse/:idUser/:idCourse', (req, res) => {
   users.joinCourse(req.params.idUser,req.params.idCourse)
   .then(response => {
@@ -208,6 +219,29 @@ app.post('/teacher/getGradesType',async function(req, res)  {
 app.post('/teacher/ownedCourse',async function(req, res)  {
   if(response!= 'undefined'){
     let response =await users.ownedCourse(req.body.userId);
+     
+      res.status(200).send(response);
+    
+  }
+
+
+
+})
+app.post('/weights', async function(req, res)  {
+  if(response!= 'undefined'){
+    let response =await users.getWeights(req.body.courseId);
+     
+      res.status(200).send(response);
+    
+  }
+
+
+
+})
+app.post('/teacher/editCourse', async function(req, res)  {
+  if(response!= 'undefined'){
+    debugger
+    let response =await users.editCourse(req.body.data);
      
       res.status(200).send(response);
     

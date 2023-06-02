@@ -6,9 +6,12 @@ import Table from '../components/Table/Table'
 import Button from "./Table/Button";
 import NoStudentsCard from "./NoStudentsCard";
 import TableInsertGrades from'./TableInsertGrades.js';
-const colNames = ['Name', 'Grade']
-const InsertGrades = (props) => {
+import "./InsertGrades.css"
 
+import { useHistory } from "react-router-dom";
+
+const InsertGrades = (props) => {
+  const colNames = ['Name', 'Grade']
   const user = useSelector((state) => state.auth.user.rows)
   const [users, setUsers] = useState([]);
   const [updatedUsers,setUpdatedUsers] = useState([]);
@@ -17,6 +20,9 @@ const InsertGrades = (props) => {
   const [allGradeTypes, setAllGradeTypes] = useState([]);
   const [gradeType, setGradeType] = useState(''); // added state for grade type
   const [isCourseSelected,setCourseSelected] = useState(false);
+  const [showNotification, setShowNotification] = useState(false); // Notification state
+  const [notificationMessage, setNotificationMessage] = useState(""); // Notification message state
+  const history = useHistory();
 
   getCourses(user[0].id).then(response => {
     console.log(response.data.rows);
@@ -163,9 +169,7 @@ const InsertGrades = (props) => {
   }
 
   const handleSubmit = (e) => {
-    console.log("USERS:" + users)
-   
-    let data = []
+    let data = [];
 
     users.forEach(user1 => {
       let info = {
@@ -174,18 +178,38 @@ const InsertGrades = (props) => {
         grade: parseInt(document.getElementById(user1.name).value),
         owner: user[0].id,
         idGrade: 0
-        
-      }
-      allGradeTypes.forEach(grade =>{
-        if(grade.grade_type == gradeType){
+      };
+
+      allGradeTypes.forEach(grade => {
+        if (grade.grade_type === gradeType) {
           info.idGrade = grade.grade_id;
         }
-      })
-      data.push(info);
-    })
-    addGrades(data);
-  }
+      });
 
+      data.push(info);
+    });
+
+    addGrades(data)
+      .then(() => {
+        setNotificationMessage("Grades have been inserted.");
+        setShowNotification(true);
+        setTimeout(() => {
+          setShowNotification(false);
+          // Redirect to "/admin" after notification disappears
+          history.push("/admin");
+        }, 2000);
+      })
+      .catch(error => {
+        console.error(error);
+        setNotificationMessage("Failed to insert grades.");
+        setShowNotification(true);
+        setTimeout(() => {
+          setShowNotification(false);
+          // Redirect to "/admin" after notification disappears
+          history.push("/admin");
+        }, 2000);
+      });
+  };
   return (
     <div className="container">
       <header className="jumbotron">
@@ -198,8 +222,8 @@ const InsertGrades = (props) => {
               <a key={course.id} onClick={(e) => fillInput(e)}>{course.name}</a>
             ))}
           </div>
-          <div><h3>Second, choose the type of grade</h3></div>
-          <button onClick={() => myFunction2() } disabled={!isCourseSelected} className="dropbtn" id="chooseGradeType">Choose Grade Type</button>
+          <div><h3>Second, choose the evaluation</h3></div>
+          <button onClick={() => myFunction2() } disabled={!isCourseSelected} className="dropbtn" id="chooseGradeType">Choose the evaluation</button>
           <div id="myDropdown2" className="dropdown-content">
               {
                allGradeTypes&& allGradeTypes.map(grade =>(<a key={grade.grade_id} onClick={(e) => fillGradeType(e)}>{grade.grade_type}</a>) )
@@ -222,7 +246,7 @@ const InsertGrades = (props) => {
               : ""
               : course ? <NoStudentsCard />: ""
         }
-        
+         {showNotification && <div className="notification">{notificationMessage}</div>}
       </div>
     </div>
   )

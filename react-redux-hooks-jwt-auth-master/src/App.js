@@ -26,6 +26,7 @@ import UserCourses from "./components/UserCourses";
 import Feed from "./components/feed/Feed";
 import GradesUsers from "./components/feed/GradesUsers";
 import Chat from "./components/chat/Chat";
+import EditCourse from "./components/EditCourse";
 
 const App = () => {
   const [showModeratorBoard, setShowModeratorBoard] = useState(false);
@@ -170,6 +171,8 @@ const App = () => {
             <Route path="/userCourses" component={UserCourses} />
             <Route path="/Feed" component={Feed} />
             <Route path="/GradesUsers" component={GradesUsers} />
+            <Route path="/editCourse" component={EditCourse} />
+        
           </Switch>
         </div>
 
