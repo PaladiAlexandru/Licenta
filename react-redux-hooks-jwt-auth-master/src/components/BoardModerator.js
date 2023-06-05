@@ -13,6 +13,7 @@ const BoardModerator = () => {
   useEffect(() => {
     UserService.getModeratorBoard().then(
       (response) => {
+        debugger
         dispatch(USERS_LOADED(response.data));
         
       },

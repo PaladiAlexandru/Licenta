@@ -7,6 +7,7 @@ import getCourses, {
   joinCourse,
   getProgression
 } from "../services/teacher-service";
+import { Portal } from "@material-ui/core";
 
 const UserCourses = () => {
   const user = useSelector((state) => state.auth.user?.rows);
@@ -22,6 +23,7 @@ const UserCourses = () => {
         getProgression(user[0].id, course.course_id ? course.course_id : course.id)
       );
       const results = await Promise.all(promises);
+     
       const progressionData = results.reduce((data, result, index) => {
         const course = joinedCourses[index];
         const courseId = course.course_id ? course.course_id : course.id;
@@ -54,6 +56,10 @@ const UserCourses = () => {
       });
     });
   }, [user]);
+  useEffect(()=>{
+    var x = progression
+    
+  },[progression])
 
   const handleJoinBtn = (e) => {
     const courseId = parseInt(e.currentTarget.id);
@@ -63,7 +69,7 @@ const UserCourses = () => {
           const courseToAdd = allCourses.find(
             (course) => (course.course_id ? course.course_id : course.id) === courseId
           );
-  
+            
           if (courseToAdd) {
             setAllCourses((prevState) => prevState.filter((course) => (course.course_id ? course.course_id : course.id) !== courseId));
             return [...prevState, courseToAdd];

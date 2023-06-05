@@ -85,9 +85,7 @@ const Profile = () => {
         <button type="submit" className="btn btn-primary">
           Change Password
         </button>
-        <button type="button" className="btn btn-danger ml-3" onClick={handleLogout}>
-          Logout
-        </button>
+       
       </form>
       
       <p>

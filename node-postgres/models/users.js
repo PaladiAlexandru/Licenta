@@ -146,6 +146,26 @@ const getCourse = (data) => {
      
   })
 }
+const getCourseName = (id) => {
+  return new Promise(async function(resolve, reject) {
+    
+   
+    
+    
+  
+     pool.query('SELECT name FROM courses WHERE "id"=$1 ', [id], (error, results) => {
+      if (error) {
+        reject(error)
+      }
+      
+     debugger
+        resolve(results);
+      
+    })
+    
+     
+  })
+}
 const getMessages= (idReceiver,idSender) => {
   return new Promise(async function(resolve, reject) {
   
@@ -465,13 +485,14 @@ const getCourseUsers = (courseName) => {
   const getGrades = (idCourse,idUser) => {
     console.log("ID USER ", idUser)
     return new Promise(function(resolve, reject) {
+      debugger
       const query = `
-        SELECT notes.grade, users.name, grades.grade_type, courses.name,grades.weight
-        FROM notes
-        INNER JOIN users ON notes.id_user = users.id
-        INNER JOIN grades ON notes.id_grade = grades.grade_id
-        INNER JOIN courses ON notes.id_course = courses.id
-        WHERE notes.id_course = $1 AND notes.id_user = $2
+      SELECT notes.grade, users.name, grades.grade_type, courses.name,grades.weight
+      FROM notes
+      INNER JOIN users ON notes.id_user = users.id
+      INNER JOIN grades ON notes.id_grade = grades.grade_id
+      INNER JOIN courses ON notes.id_course = courses.id
+      WHERE notes.id_course = $1 AND notes.id_user = $2 and notes.grade IS NOT NULL
       `;
       pool.query(query, [idCourse,idUser], (error, results) => {
         if (error) {
@@ -500,11 +521,21 @@ const getCourseUsers = (courseName) => {
   console.log("AJUNG FĂĂĂ")
   return new Promise((resolve, reject) => {
     const query = `
-      SELECT courses.nr_of_grades, grades.grade_id, grades.grade_type,courses.id
-      FROM courses
-      INNER JOIN grades ON courses.id = grades.course_id
-      INNER JOIN notes ON grades.grade_id = notes.id_grade
-      WHERE notes.id_user = $1 AND notes.id_course = $2
+    SELECT courses.nr_of_grades, grades.grade_id, grades.grade_type, courses.id, notes.grade, combined.last_grade_taken
+FROM courses
+LEFT JOIN grades ON courses.id = grades.course_id
+LEFT JOIN notes ON grades.grade_id = notes.id_grade AND notes.id_user = $1
+LEFT JOIN (
+  SELECT MAX(notes.id_grade) AS last_grade_taken
+  FROM notes
+  WHERE notes.id_grade IN (
+    SELECT grades.grade_id
+    FROM grades
+    WHERE grades.course_id = $2
+  )
+) AS combined ON 1=1
+WHERE courses.id = $2;
+
     `;
 
     pool.query(query, [id_user,id_course], (error, results) => {
@@ -547,6 +578,7 @@ const getCourseUsers = (courseName) => {
     getProgression,
     getWeights,
     editCourse,
-    deleteCourse
+    deleteCourse,
+    getCourseName
   
   }

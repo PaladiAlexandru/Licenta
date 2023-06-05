@@ -1,28 +1,36 @@
 import React from 'react';
-import './ProgressBar.css'; // assuming you have a css file for styling
+import './ProgressBar.css'; // assuming you have a CSS file for styling
 
-const ProgressBar = ({ currentStep, numberOfGrades, testsTaken }) => {
+const ProgressBar = ({ currentStep, numberOfGrades, progression }) => {
   const circles = [];
 
   for (let i = 0; i < numberOfGrades; i++) {
-    const isCompleted = currentStep >= i + 1;
+    let isCompleted;
+    let isMissed;
     let circleTitle;
 
-    if (i < testsTaken.length) {
-      circleTitle = `${testsTaken[i]} took place`;
+    if (progression[i].grade !== null) {
+      circleTitle = `${progression[i].grade_type} took place`;
+      isCompleted = true;
+      isMissed = false;
     } else {
-      const lastTestNumber = testsTaken.length + i - testsTaken.length + 1;
-      if (i === numberOfGrades - 1) {
-        circleTitle = "Final exam didn't take place";
+      if (progression[i].last_grade_taken >= progression[i].grade_id) {
+        circleTitle = `You missed ${progression[i].grade_type}!`;
+        isCompleted = false;
+        isMissed = true;
       } else {
-        circleTitle = `Test ${lastTestNumber} didn't take place`;
+        circleTitle = `${progression[i].grade_type} didn't took place`;
+        isCompleted = false;
+        isMissed = false;
       }
     }
 
+    const circleContent = isCompleted ? '✓' : (isMissed ? '✘' : '✓');
+    debugger
     circles.push(
-      <React.Fragment key={`circle-${i}`}>
-        <div className={`circle ${isCompleted ? 'completed' : ''}`} title={circleTitle}>
-          <span>&#10003;</span>
+      <React.Fragment key={`circle-${progression[i].grade_id}`}>
+        <div className={`circle ${isCompleted ? 'completed' : ''} ${isMissed ? 'missed' : ''}`} title={circleTitle}>
+          <span>{circleContent}</span>
         </div>
         {i !== numberOfGrades - 1 && <div className={`line ${isCompleted ? 'completed' : ''}`}></div>}
       </React.Fragment>
