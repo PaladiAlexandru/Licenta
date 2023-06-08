@@ -504,6 +504,48 @@ const getCourseUsers = (courseName) => {
       });
     });
   };
+  const getAllGrades = (idCourse) => {
+    debugger
+    console.log("COURSE ID",idCourse)
+    return new Promise(function(resolve, reject) {
+      debugger
+      const query = `
+      SELECT 
+  notes.grade, 
+  users.name as username, 
+  grades.grade_type, 
+  courses.name,
+  grades.weight
+FROM 
+  notes
+INNER JOIN 
+  users 
+ON 
+  notes.id_user = users.id
+INNER JOIN 
+  grades 
+ON 
+  notes.id_grade = grades.grade_id
+INNER JOIN 
+  courses 
+ON 
+  notes.id_course = courses.id
+WHERE 
+  notes.id_course = $1
+ORDER BY 
+  grades.grade_type ASC;
+
+      `;
+      pool.query(query, [idCourse], (error, results) => {
+        if (error) {
+          console.log(error);
+          reject(error);
+        }
+        console.log("ZZZZZZZZZZZZZZZZZZZZZZZZZZZZ ", results )
+                resolve(results);
+      });
+    });
+  };
   
   const getGrade = (userId,courseId,type) => {
     console.log("id:::" + id)
@@ -579,6 +621,7 @@ WHERE courses.id = $2;
     getWeights,
     editCourse,
     deleteCourse,
-    getCourseName
+    getCourseName,
+    getAllGrades
   
   }

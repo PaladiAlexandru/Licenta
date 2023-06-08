@@ -20,6 +20,7 @@ const GradesUsers = () => {
     if (courseId && store.getState().auth.user?.rows[0]?.id) {
       getGrades(courseId, store.getState().auth.user.rows[0].id)
         .then((response) => {
+          debugger;
           setGrades(response.data.rows);
         })
         .catch((error) => {
@@ -35,7 +36,8 @@ const GradesUsers = () => {
   useEffect(() => {
     if (grades.length > 0) {
       const calculatedGrade = grades.reduce((total, grade) => total + grade.weight * 0.01 * grade.grade, 0);
-      setCurrentGrade(calculatedGrade);
+      const formattedGrade = calculatedGrade.toFixed(2); // Limit to two decimal places
+      setCurrentGrade(formattedGrade);
     }
   }, [grades]);
 
@@ -44,86 +46,35 @@ const GradesUsers = () => {
     return new Date(date).toLocaleDateString(undefined, options);
   };
 
-  const generateGoogleDocs = () => {
-    const docContent = `
-Course name: ${grades[0].name}
-
-Grade   | Examination
-------------------------
-${grades.map((grade) => `${grade.grade}       | ${grade.grade_type}`).join('\n')}
-------------------------
-Your current grade is: ${currentGrade}
-`;
-
-    const fileMetadata = {
-      name: 'Grades Document',
-      mimeType: 'application/vnd.google-apps.document',
-    };
-
-    const fileContent = new Blob([docContent], { type: 'text/plain' });
-    const reader = new FileReader();
-    reader.readAsDataURL(fileContent);
-    reader.onloadend = () => {
-      const base64Data = reader.result.split(',')[1];
-      const boundary = '-------314159265358979323846';
-      const delimiter = `\r\n--${boundary}\r\n`;
-      const closeDelimiter = `\r\n--${boundary}--`;
-
-      const metadata = {
-        name: 'Grades Document',
-        mimeType: 'application/vnd.google-apps.document',
-      };
-
-      const requestBody = delimiter +
-        'Content-Type: application/json\r\n\r\n' +
-        JSON.stringify(metadata) +
-        delimiter +
-        'Content-Type: text/plain\r\n' +
-        'Content-Transfer-Encoding: base64\r\n' +
-        '\r\n' +
-        base64Data +
-        closeDelimiter;
-
-      fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${YOUR_GOOGLE_ACCESS_TOKEN}`,
-          'Content-Type': `multipart/related; boundary="${boundary}"`,
-        },
-        body: requestBody,
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          setGoogleDocsLink(`https://docs.google.com/document/d/${data.id}`);
-        })
-        .catch((error) => {
-          console.log(error);
-        });
-    };
-  };
-
-  const PDFDocument = ({ data, courseName, currentGrade }) => (
-    <Document>
-      <Page style={styles.page}>
-        <View style={styles.header}>
-          <Text style={styles.courseName}>Course name: {courseName}</Text>
-          <Text style={styles.currentGrade}>Current grade: {currentGrade}</Text>
-        </View>
-        <View style={styles.table}>
+  const PDFDocument = ({ data, courseName, currentGrade }) => {
+    const currentDate = new Date().toLocaleString();
+  
+    return (
+      <Document>
+        <Page style={styles.page}>
+          <View style={styles.header}>
+            <Text style={styles.currentDate}>Date: {currentDate}</Text>
+            <Text style={styles.courseName}>Course name: {courseName}</Text>
+            <Text style={styles.currentGrade}>Current grade: {currentGrade}</Text>
+          </View>
+          <View style={styles.table}>
           <View style={styles.tableRow}>
             <Text style={styles.tableHeaderCell}>Grade</Text>
+            <Text style={styles.tableDivider} />
             <Text style={styles.tableHeaderCell}>Examination</Text>
           </View>
           {data.map((item, index) => (
             <View key={index} style={styles.tableRow}>
               <Text style={styles.gradeCell}>{item.grade}</Text>
+              <Text style={styles.tableDivider} />
               <Text style={styles.examCell}>{item.grade_type}</Text>
             </View>
           ))}
         </View>
       </Page>
     </Document>
-  );
+    );
+  };
 
   const styles = StyleSheet.create({
     page: {
@@ -143,34 +94,53 @@ Your current grade is: ${currentGrade}
       fontSize: 16,
       marginBottom: 10,
     },
+    currentDate: {
+      fontSize: 14,
+      position: 'absolute',
+      top: 30,
+      right: 30,
+    },
+    tableRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      borderBottomWidth: 1,
+      borderBottomColor: '#000',
+      paddingBottom: 5,
+    },
+    tableDivider: {
+      flex: 0,
+      height: '100%',
+      borderLeftColor: '#000',
+      marginLeft: 5,
+      marginRight: 5,
+    },
     table: {
       display: 'table',
       width: '100%',
       marginTop: 10,
     },
-    tableRow: {
-      flexDirection: 'row',
-      alignItems: 'center',
-    },
+   
     tableHeaderCell: {
+      flex: 1,
       margin: 5,
       fontSize: 12,
       fontWeight: 'bold',
       textAlign: 'center',
     },
     gradeCell: {
+      flex: 1,
       margin: 5,
       fontSize: 10,
       textAlign: 'center',
-      paddingRight: 10,
     },
     examCell: {
+      flex: 1,
       margin: 5,
       fontSize: 10,
       textAlign: 'center',
-      paddingLeft: 10,
     },
   });
+  
 
   return (
     <div className="container">
@@ -195,12 +165,10 @@ Your current grade is: ${currentGrade}
           </Table>
           <h3>Your current grade is: {currentGrade}</h3>
           <div className="download-icon">
-            <PDFDownloadLink document={<PDFDocument data={grades} courseName={grades[0].name} currentGrade={currentGrade} />} fileName="grades.pdf">
+          <PDFDownloadLink document={<PDFDocument data={grades} courseName={grades[0].name} currentGrade={currentGrade} />} fileName={`${grades[0].name}.pdf`}>
               <FontAwesomeIcon icon={faDownload} /> Download PDF
             </PDFDownloadLink>
           </div>
-          {googleDocsLink && <a href={googleDocsLink} target="_blank" rel="noopener noreferrer">Open Google Docs</a>}
-          <button onClick={generateGoogleDocs}>Generate Google Docs</button>
         </>
       ) : (
         <>

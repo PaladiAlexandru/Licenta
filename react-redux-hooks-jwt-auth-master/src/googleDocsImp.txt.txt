@@ -1,0 +1,3 @@
+API_KEY=AIzaSyALm75WAURVXzkvTtrUvyARo9yFz_vdcM0
+CLIENT_ID=998457321788-8vpld9qphpm5l17dcjhvc1ijau4lsg4a.apps.googleusercontent.com
+CLIENT_SECRET=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

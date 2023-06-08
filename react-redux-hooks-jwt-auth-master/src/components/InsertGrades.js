@@ -3,19 +3,25 @@ import { addCourse, addGrades, getGradesType, getUsers } from '../services/teach
 import { useSelector } from "react-redux";
 import getCourses from '../services/teacher-service'
 import Table from '../components/Table/Table'
-import Button from "./Table/Button";
+
 import NoStudentsCard from "./NoStudentsCard";
 import TableInsertGrades from'./TableInsertGrades.js';
 import "./InsertGrades.css"
+import { useLocation } from "react-router-dom";
+import { Box, Button, MenuItem, FormControl, InputLabel, TextField } from '@material-ui/core';
+
+
+
 
 import { useHistory } from "react-router-dom";
+import { darkBaseTheme } from "material-ui/styles";
 
 const InsertGrades = (props) => {
   const colNames = ['Name', 'Grade']
   const user = useSelector((state) => state.auth.user.rows)
   const [users, setUsers] = useState([]);
   const [updatedUsers,setUpdatedUsers] = useState([]);
-  const [course, setCourse] = useState('');
+  
   const [courses, setCourses] = useState([]);
   const [allGradeTypes, setAllGradeTypes] = useState([]);
   const [gradeType, setGradeType] = useState(''); // added state for grade type
@@ -23,7 +29,8 @@ const InsertGrades = (props) => {
   const [showNotification, setShowNotification] = useState(false); // Notification state
   const [notificationMessage, setNotificationMessage] = useState(""); // Notification message state
   const history = useHistory();
-
+  const location = useLocation();
+  const course = location.state?.course;
   getCourses(user[0].id).then(response => {
     console.log(response.data.rows);
   })
@@ -78,19 +85,19 @@ const InsertGrades = (props) => {
   useEffect(() => {
     if (allGradeTypes.length > 0 && gradeType !== '') {
       const fetchData = async () => {
-        const updatedUsersCopy = [...users];
-  
+        const updatedUsersCopy = JSON.parse(JSON.stringify(users)); // Deep copy of the users array
+      
         for (let i = 0; i < updatedUsersCopy.length; i++) {
           const user = updatedUsersCopy[i];
-  
+      
           try {
-            const response = await getGradesType(course.course_id); // Assuming getGradesType fetches individual user grades based on the course ID
+            const response = await getGradesType(course.course_id);
             const grades = response.data.rows;
-  
+      
             for (let j = 0; j < grades.length; j++) {
               const grade = grades[j];
-  
-              if (grade.grade_type === gradeType && grade.id_user === user.user_id) {
+      
+              if (grade.grade_type === gradeType.grade_type && grade.id_user === user.user_id) {
                 updatedUsersCopy[i].existingGrade = grade.grade;
                 break;
               }
@@ -99,7 +106,7 @@ const InsertGrades = (props) => {
             console.error(error);
           }
         }
-  
+      
         setUpdatedUsers(updatedUsersCopy);
       };
   
@@ -113,7 +120,7 @@ const InsertGrades = (props) => {
 
   useEffect(()=>{
     let v = updatedUsers
-    debugger
+    
    
   },[updatedUsers])
 
@@ -127,22 +134,16 @@ const InsertGrades = (props) => {
  
 
   const fillInput = (e) => {
-    const crs = courses.find(crs => crs.name == e.currentTarget.childNodes[0].data)
-    setCourse(crs);
-    console.log(e);
     
-    document.getElementById("chooseCourse").textContent = e.currentTarget.childNodes[0].data
     setCourseSelected(true);
     document.getElementById("myDropdown").classList.remove("show");
   }
 
-  const fillGradeType = (e) => { // added function to set grade type
-    setGradeType(e.currentTarget.childNodes[0].data);
-    
-    console.log(e);
-    document.getElementById("chooseGradeType").textContent = e.currentTarget.childNodes[0].data
-    document.getElementById("myDropdown2").classList.remove("show");
+  const fillGradeType = (event) => {
+    setGradeType(event.target.value);
+  
   }
+  
 
   const myFunction = () => {
     document.getElementById("myDropdown").classList.toggle("show");
@@ -211,44 +212,44 @@ const InsertGrades = (props) => {
       });
   };
   return (
-    <div className="container">
-      <header className="jumbotron">
-        <div className="dropdown">
-          <div><h3>First, choose the course</h3></div>
-          <button onClick={() => myFunction()} className="dropbtn" id="chooseCourse">Choose Course</button>
-          <div id="myDropdown" className="dropdown-content">
-            <input type="text" placeholder="Search.." id="myInput" onKeyUp={() => filterFunction()} />
-            {courses.map(course => (
-              <a key={course.id} onClick={(e) => fillInput(e)}>{course.name}</a>
-            ))}
-          </div>
-          <div><h3>Second, choose the evaluation</h3></div>
-          <button onClick={() => myFunction2() } disabled={!isCourseSelected} className="dropbtn" id="chooseGradeType">Choose the evaluation</button>
-          <div id="myDropdown2" className="dropdown-content">
-              {
-               allGradeTypes&& allGradeTypes.map(grade =>(<a key={grade.grade_id} onClick={(e) => fillGradeType(e)}>{grade.grade_type}</a>) )
-            
+    <Box container spacing={2}>
+      <h3>{course.name}</h3>
 
-            }
-            
-           
-          </div>
-        </div>
-      </header>
-      <div className="col-md-6">
-        {users.length > 0 ? 
-            gradeType ?
-              <div><TableInsertGrades
-                colNames={colNames}
-                data={updatedUsers}
-              />
-              <button onClick={(e) => handleSubmit(e)} type="button" className="btn btn-success" >Submit </button></div>
-              : ""
-              : course ? <NoStudentsCard />: ""
-        }
-         {showNotification && <div className="notification">{notificationMessage}</div>}
-      </div>
-    </div>
+      <Box item xs={12}>
+        <FormControl fullWidth>
+          <TextField
+            select
+            label="Choose the evaluation"
+            value={gradeType}
+            onChange={fillGradeType}
+            style={{ paddingBottom: "16px" }}
+          >
+            {allGradeTypes.map((grade) => (
+              <MenuItem key={grade.grade_id} value={grade}>
+                {grade.grade_type}
+              </MenuItem>
+            ))}
+          </TextField>
+        </FormControl>
+      </Box>
+
+      <Box item xs={12}>
+        {users.length > 0 && gradeType && (
+          <>
+            <TableInsertGrades colNames={colNames} data={updatedUsers} />
+            <Button variant="contained" color="primary" onClick={handleSubmit}>Submit</Button>
+          </>
+        )}
+
+        {users.length === 0 && course && <NoStudentsCard />}
+      </Box>
+
+      {showNotification && (
+        <Box item xs={12} className="notification">
+          {notificationMessage}
+        </Box>
+      )}
+    </Box>
   )
 }
 

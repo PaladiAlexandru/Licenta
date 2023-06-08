@@ -4,13 +4,14 @@ import EventBus from "../common/EventBus";
 import Table from "./Table/Table";
 import { useDispatch, useSelector} from "react-redux";
 import { USERS_LOADED } from "../actions/mod";
-const colNames = ['Id','Name','Password','Role']
+const colNames = ['Name','Password','Role']
 
 const BoardModerator = () => {
   const dispatch= useDispatch();
   
 
   useEffect(() => {
+    debugger
     UserService.getModeratorBoard().then(
       (response) => {
         debugger
@@ -37,8 +38,8 @@ const BoardModerator = () => {
   return (
     <div className="container">
       <header className="jumbotron">
-      {
-         <Table colNames={colNames}/>
+      {   
+         <Table colNames={colNames} />
         
         
       

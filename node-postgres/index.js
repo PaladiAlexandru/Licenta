@@ -2,13 +2,9 @@ const express = require('express')
 const token_gen = require('./token-gen')
 const app = express()
 const port = 3001
-const { google } = require('googleapis');
 
-// Your Google OAuth credentials
-const CLIENT_ID = '841209852531-rr8k1qt95gb4pbqbtu91potebp9j60l3.apps.googleusercontent.com';
-const CLIENT_SECRET = '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';
-const REDIRECT_URI = 'http://localhost:8082/create-google-docs';
-const REFRESH_TOKEN = 'YOUR_REFRESH_TOKEN';
+
+
 
 const users = require('./models/users')
 var cors = require('cors');
@@ -69,16 +65,7 @@ app.post('/signup', (req, res) => {
   })
 })
 
-app.post('/create-google-docs', (req, res) => {
-  // Extract the necessary data from the request body
-  const { title, content } = req.body;
 
-  // Use the title and content to create the Google Docs page
-  // ... your logic to create the Google Docs page ...
-
-  // Send a success response
-  res.status(200).json({ message: 'Google Docs page created successfully' });
-});
 app.post('/remove/prof',(req,res) => {
   
   users.removeProf(req.body.index)
@@ -200,7 +187,7 @@ app.post('/teacher/getCourse',async function(req, res)  {
     
   }
 })
-app.post('/teacher/send',async function(req, res)  {
+app.post('/teacher/sendGrades',async function(req, res)  {
     if(response!= 'undefined'){
       let response =await users.sendGrades(req.body.data);
         res.status(200).send(response);
@@ -270,6 +257,17 @@ app.post('/teacher/editCourse', async function(req, res)  {
 app.post('/grades', async function(req, res)  {
   if(response!= 'undefined'){
     let response =await users.getGrades(req.body.courseId,req.body.userId);
+     
+      res.status(200).send(response);
+    
+  }
+
+
+
+})
+app.post('/allGrades', async function(req, res)  {
+  if(response!= 'undefined'){
+    let response =await users.getAllGrades(req.body.courseId);
      
       res.status(200).send(response);
     

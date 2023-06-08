@@ -27,6 +27,7 @@ import Feed from "./components/feed/Feed";
 import GradesUsers from "./components/feed/GradesUsers";
 import Chat from "./components/chat/Chat";
 import EditCourse from "./components/EditCourse";
+import GradesTeacher from "./components/GradesTeacher";
 
 const App = () => {
   const [showModeratorBoard, setShowModeratorBoard] = useState(false);
@@ -110,13 +111,13 @@ const App = () => {
                 </Link>
               </li>
             )}
-            {currentUser && currentUser.rows[0] && currentUser.rows[0].role.includes("user") && (
+            {/* {currentUser && currentUser.rows[0] && currentUser.rows[0].role.includes("user") && (
               <li className="nav-item">
                 <Link to={"/Feed"} className="nav-link">
                   Feed
                 </Link>
               </li>
-            )}
+            )} */}
             {/* {currentUser && currentUser.rows[0] && currentUser.rows[0].role.includes("profesor") && (
               <li className="nav-item">
                 <Link to={"/Feed"} className="nav-link">
@@ -172,6 +173,7 @@ const App = () => {
             <Route path="/Feed" component={Feed} />
             <Route path="/GradesUsers" component={GradesUsers} />
             <Route path="/editCourse" component={EditCourse} />
+            <Route path="/CourseSituation" component={GradesTeacher} />
         
           </Switch>
         </div>
