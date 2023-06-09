@@ -25,8 +25,12 @@ const UserCourse = (props) => {
             if(item.grade_type != "Final exam"){
               const lastCharacter = item.grade_type.slice(-1);
               setCurrentStep(lastCharacter);
+            }else{
+              
+              setCurrentStep(item.nr_of_grades)
             }
-          }else{
+          }
+          else{
               
             setCurrentStep(item.nr_of_grades)
           }

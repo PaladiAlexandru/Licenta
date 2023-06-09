@@ -83,7 +83,7 @@ const InsertGrades = (props) => {
   }, [course]);
   
   useEffect(() => {
-    if (allGradeTypes.length > 0 && gradeType !== '') {
+    if (allGradeTypes.length > 0 && gradeType.grade_type !== '') {
       const fetchData = async () => {
         const updatedUsersCopy = JSON.parse(JSON.stringify(users)); // Deep copy of the users array
       
@@ -182,7 +182,7 @@ const InsertGrades = (props) => {
       };
 
       allGradeTypes.forEach(grade => {
-        if (grade.grade_type === gradeType) {
+        if (grade.grade_type === gradeType.grade_type) {
           info.idGrade = grade.grade_id;
         }
       });
@@ -213,7 +213,7 @@ const InsertGrades = (props) => {
   };
   return (
     <Box container spacing={2}>
-      <h3>{course.name}</h3>
+      <h3>Course name: {course.name}</h3>
 
       <Box item xs={12}>
         <FormControl fullWidth>
@@ -234,7 +234,7 @@ const InsertGrades = (props) => {
       </Box>
 
       <Box item xs={12}>
-        {users.length > 0 && gradeType && (
+        {users.length > 0 && gradeType.grade_type && (
           <>
             <TableInsertGrades colNames={colNames} data={updatedUsers} />
             <Button variant="contained" color="primary" onClick={handleSubmit}>Submit</Button>

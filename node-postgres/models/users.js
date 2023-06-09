@@ -29,10 +29,10 @@ const addCourse = async (data) => {
 
     // Insert grades
     const insertGradesQuery = 'INSERT INTO grades (grade_type, weight, course_id) VALUES ($1, $2, $3)';
-    for (let i = 1; i <= nr_of_grades; i++) {
+    for (let i = 0; i < nr_of_grades; i++) {
       debugger
-      const gradeType = i == nr_of_grades ? 'Final exam' : `Test${i}`;
-      await client.query(insertGradesQuery, [gradeType, weights[i - 1], courseId]);
+      const gradeType = i == nr_of_grades -1 ? 'Final exam' : `Test${i+1}`;
+      await client.query(insertGradesQuery, [gradeType, weights[i], courseId]);
     }
 
     // If everything is successful, commit the transaction
@@ -48,66 +48,51 @@ const addCourse = async (data) => {
   }
 };
 
-const editCourse = (data) => {
-  
-  return new Promise(async function(resolve, reject) {
+const editCourse = async (data) => {
+  let client = null; // Declare the client variable
+
+  try {
     const { name, description, type, final_exam, nr_of_grades, weights, courseId } = data;
 
+    // Start a transaction
+    client = await pool.connect();
+    await client.query('BEGIN');
+
     // Update the course information
-    pool.query(
+    await client.query(
       'UPDATE courses SET name = $1, description = $2, type = $3, exam_date = $4, nr_of_grades = $5 WHERE id = $6',
-      [name, description, type, final_exam, nr_of_grades, courseId],
-      (error, results) => {
-        if (error) {
-          reject(error);
-        }
-        
-        // Update the weights for each grade type (excluding "Final exam")
-        const updatePromises = weights.slice(0, -1).map((weight, index) => {
-          const gradeType = `Test${index + 1}`;
-
-          return new Promise((resolve, reject) => {
-            pool.query(
-              'UPDATE grades SET weight = $1 WHERE grade_type = $2 AND course_id = $3',
-              [weight, gradeType, courseId],
-              (error, results) => {
-                if (error) {
-                  reject(error);
-                }
-                
-                resolve();
-              }
-            );
-          });
-        });
-
-        // Update the weight for "Final exam"
-        const finalExamWeight = weights[weights.length - 1];
-        const finalExamPromise = new Promise((resolve, reject) => {
-          pool.query(
-            'UPDATE grades SET weight = $1 WHERE grade_type = $2 AND course_id = $3',
-            [finalExamWeight, 'Final exam', courseId],
-            (error, results) => {
-              if (error) {
-                reject(error);
-              }
-              
-              resolve();
-            }
-          );
-        });
-
-        // Combine all update promises
-        const allUpdatePromises = [...updatePromises, finalExamPromise];
-
-        // Wait for all weight updates to finish
-        Promise.all(allUpdatePromises)
-          .then(() => resolve('Course has been edited'))
-          .catch((error) => reject(error));
-      }
+      [name, description, type, final_exam, nr_of_grades, courseId]
     );
-  });
+
+    // Delete existing grades for the course
+    await client.query('DELETE FROM grades WHERE course_id = $1', [courseId]);
+
+    // Insert new grades
+    const insertGradesQuery = 'INSERT INTO grades (grade_type, weight, course_id) VALUES ($1, $2, $3)';
+    for (let i = 0; i < nr_of_grades - 1; i++) {
+      const gradeType = `Test${i + 1}`;
+      const weight = weights[i];
+      await client.query(insertGradesQuery, [gradeType, weight, courseId]);
+    }
+
+    const finalExamWeight = weights[weights.length - 1];
+    await client.query(insertGradesQuery, ['Final exam', finalExamWeight, courseId]);
+
+    // If everything is successful, commit the transaction
+    await client.query('COMMIT');
+
+    return 'Course has been edited';
+  } catch (e) {
+    await client.query('ROLLBACK');
+    throw e;
+  } finally {
+    if (client) {
+      client.release();
+    }
+  }
 };
+
+
 
 const getWeights = (courseId) => {
   return new Promise(async function(resolve, reject) {
@@ -563,22 +548,44 @@ ORDER BY
   console.log("AJUNG FĂĂĂ")
   return new Promise((resolve, reject) => {
     const query = `
-    SELECT courses.nr_of_grades, grades.grade_id, grades.grade_type, courses.id, notes.grade, combined.last_grade_taken
-FROM courses
-LEFT JOIN grades ON courses.id = grades.course_id
-LEFT JOIN notes ON grades.grade_id = notes.id_grade AND notes.id_user = $1
+    SELECT
+  courses.nr_of_grades,
+  grades.grade_id,
+  grades.grade_type,
+  courses.id,
+  notes.grade,
+  combined.last_grade_taken
+FROM
+  courses
+LEFT JOIN
+  grades ON courses.id = grades.course_id
+LEFT JOIN
+  notes ON grades.grade_id = notes.id_grade AND notes.id_user = $1
 LEFT JOIN (
-  SELECT MAX(notes.id_grade) AS last_grade_taken
-  FROM notes
-  WHERE notes.id_grade IN (
-    SELECT grades.grade_id
-    FROM grades
-    WHERE grades.course_id = $2
-  )
-) AS combined ON 1=1
-WHERE courses.id = $2;
+  SELECT
+    MAX(notes.id_grade) AS last_grade_taken
+  FROM
+    notes
+  WHERE
+    notes.id_grade IN (
+      SELECT
+        grades.grade_id
+      FROM
+        grades
+      WHERE
+        grades.course_id = $2
+    )
+) AS combined ON 1 = 1
+WHERE
+  courses.id = $2
+ORDER BY
+  CASE
+    WHEN grades.grade_type = 'Final exam' THEN 2
+    ELSE 1
+  END,
+  grades.grade_type;
 
-    `;
+`;
 
     pool.query(query, [id_user,id_course], (error, results) => {
       if (error) {

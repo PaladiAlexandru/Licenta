@@ -26,7 +26,8 @@ const ProgressBar = ({ currentStep, numberOfGrades, progression }) => {
     }
 
     const circleContent = isCompleted ? '✓' : (isMissed ? '✘' : '✓');
-    debugger
+    // if(progression[0].id == 79)
+      debugger
     circles.push(
       <React.Fragment key={`circle-${progression[i].grade_id}`}>
         <div className={`circle ${isCompleted ? 'completed' : ''} ${isMissed ? 'missed' : ''}`} title={circleTitle}>

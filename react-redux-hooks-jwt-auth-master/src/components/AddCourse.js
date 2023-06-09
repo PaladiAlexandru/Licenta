@@ -60,6 +60,7 @@ const AddCourse = (props) => {
     const localData = await getCourse(data);
 
     if (localData.rows.length === 0) {
+      debugger
       addCourse(data).then(() =>{
         setCourseAdded(true);
         setFormSubmited(true);

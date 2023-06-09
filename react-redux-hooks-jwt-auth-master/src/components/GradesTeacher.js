@@ -65,32 +65,44 @@ const GradesTeacher = (props) => {
           top: 30,
           right: 30,
         },
+        tableRow: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          borderBottomWidth: 1,
+          borderBottomColor: '#000',
+          paddingBottom: 5,
+        },
+        tableDivider: {
+          flex: 0,
+          height: '100%',
+          borderLeftColor: '#000',
+          marginLeft: 5,
+          marginRight: 5,
+        },
         table: {
           display: 'table',
           width: '100%',
           marginTop: 10,
         },
-        tableRow: {
-          flexDirection: 'row',
-          alignItems: 'center',
-        },
+       
         tableHeaderCell: {
+          flex: 1,
           margin: 5,
           fontSize: 12,
           fontWeight: 'bold',
           textAlign: 'center',
         },
         gradeCell: {
+          flex: 1,
           margin: 5,
           fontSize: 10,
           textAlign: 'center',
-          paddingRight: 10,
         },
         examCell: {
+          flex: 1,
           margin: 5,
           fontSize: 10,
           textAlign: 'center',
-          paddingLeft: 10,
         },
       });
       
