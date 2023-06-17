@@ -73,8 +73,8 @@ const App = () => {
       <div>
       <nav className="navbar navbar-expand navbar-dark bg-dark">
       <Link to={"/"} className="navbar-brand d-flex align-items-center">
-        <img src="/images/logo.png" alt="Catalog-Live" height="40" className="mr-2" />
-        Catalog-Live
+        <img src="/images/logo.png" alt="Catalog Online" height="40" className="mr-2" />
+        Catalog Online
       </Link>
           <div className="navbar-nav mr-auto">
             <li className="nav-item">
