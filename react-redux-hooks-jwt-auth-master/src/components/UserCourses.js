@@ -15,6 +15,8 @@ const UserCourses = () => {
   const [allCourses, setAllCourses] = useState([]);
   const [progression, setProgression] = useState({});
   const [loadingProgression, setLoadingProgression] = useState(true);
+  const [searchTermAllCourses, setSearchTermAllCourses] = useState('');
+  const [searchTermYourCourses, setSearchTermYourCourses] = useState('');
 
   useEffect(() => {
     const fetchProgressionData = async () => {
@@ -56,11 +58,7 @@ const UserCourses = () => {
       });
     });
   }, [user]);
-  useEffect(()=>{
-    var x = progression
-    
-  },[progression])
-
+  
   const handleJoinBtn = (e) => {
     const courseId = parseInt(e.currentTarget.id);
     joinCourse(user[0].id, courseId)
@@ -83,17 +81,13 @@ const UserCourses = () => {
       });
   };
   
-  
-  
   const handleLeaveBtn = (e) => {
     const courseId = parseInt(e.currentTarget.id);
 
     removeCourse(user[0].id, courseId)
       .then(() => {
         setJoinedCourses((prevState) =>
-          prevState.filter(
-            (course) => (course.course_id ? course.course_id : course.id) !== courseId
-          )
+          prevState.filter((course) => (course.course_id ? course.course_id : course.id) !== courseId)
         );
 
         const courseToAdd = joinedCourses.find(
@@ -109,24 +103,53 @@ const UserCourses = () => {
       });
   };
 
+  const handleSearchAllCourses = (event) => {
+    setSearchTermAllCourses(event.target.value);
+  };
+
+  const handleSearchYourCourses = (event) => {
+    setSearchTermYourCourses(event.target.value);
+  };
+
+  const filteredAllCourses = allCourses.filter(course => {
+    return course.name.toLowerCase().includes(searchTermAllCourses.toLowerCase());
+  });
+
+  const filteredYourCourses = joinedCourses.filter(course => {
+    return course.name.toLowerCase().includes(searchTermYourCourses.toLowerCase());
+  });
+
   return (
     <div className="container">
       <header className="jumbotron">
-        {joinedCourses.length ? <h3>Your courses</h3> : ""}
-        {joinedCourses.map((course, id) => (
-          <UserCourse
-            courseName={`${course.name}`}
-            key={id}
-            owned={true}
-            handleOnClick={(e) => handleLeaveBtn(e)}
-            id={course.course_id ? course.course_id : course.id}
-            progression={loadingProgression ? null : progression[course.course_id ? course.course_id : course.id]}
-          />
-        ))}
+        {joinedCourses.length ? (
+          <>
+            <h3>Your courses</h3>
+            <div className="search-bar">
+              <label htmlFor="searchInputYourCourses" className="search-label">Search your courses:</label>
+              <input id="searchInputYourCourses" type="text" placeholder="Enter a course name" value={searchTermYourCourses} onChange={handleSearchYourCourses} className="search-input" />
+            </div>
+            {filteredYourCourses.map((course, id) => (
+              <UserCourse
+                courseName={`${course.name}`}
+                key={id}
+                owned={true}
+                handleOnClick={(e) => handleLeaveBtn(e)}
+                id={course.course_id ? course.course_id : course.id}
+                progression={loadingProgression ? null : progression[course.course_id ? course.course_id : course.id]}
+              />
+            ))}
+          </>
+        ) : null}
+
         {allCourses.length > 0 && (
           <div>
             <h3>All courses</h3>
-            {allCourses.map((course, id) => (
+            <div className="search-bar">
+              <label htmlFor="searchInputAllCourses" className="search-label">Search all courses:</label>
+              <input id="searchInputAllCourses" type="text" placeholder="Enter a course name" value={searchTermAllCourses} onChange={handleSearchAllCourses} className="search-input" />
+            </div>
+            {filteredAllCourses.map((course, id) => (
               <UserCourse
                 courseName={`${course.name}`}
                 key={id}
