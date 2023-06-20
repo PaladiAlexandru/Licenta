@@ -36,7 +36,8 @@ function Table({ colNames }) {
               {users.map(user => (
                 <tr key={user.id}>
                   {Object.entries(user).map(([key, value]) => {
-                    if (key === "name" || key === "password" || key === "role") {
+                    if (key === "name" || key === "role") {
+                      if(!(value === "Administrator" || value === "secretar" ))
                       return <td key={key}>{value}</td>;
                     }
                     return null;

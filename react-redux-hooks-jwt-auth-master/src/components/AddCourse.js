@@ -226,10 +226,10 @@ const AddCourse = (props) => {
           </div>
           <button type="submit" className="btn btn-success" onClick={handleSubmit} disabled={!examDate || !courseName || !courseDescription}>Submit</button>
           {formSubmited && (
-            <div className={`card text-white ${courseAdded ? 'bg-success' : 'bg-danger'}`} style={{ maxWidth: '18rem', textAlign: 'left' }}>
+            <div className={`card text-white ${courseAdded ? 'bg-success' : 'bg-danger'}`} style={{ maxWidth: '18rem', textAlign: 'left', marginTop: '10px'  }}>
               <div className="card-header">{courseAdded ? 'Success!' : 'Error!'}</div>
               <div className="card-body">
-                <div className="card-text">
+                <div className="card-text" >
                   {courseAdded ? 'Course added' : 'Course already exists'}
                 </div>
               </div>

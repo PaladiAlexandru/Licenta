@@ -82,7 +82,7 @@ const App = () => {
                 Home
               </Link>
             </li>
-           {currentUser && (<li className="nav-item">
+           {currentUser && currentUser.rows[0] && !currentUser.rows[0].role.includes("secretar") &&  (<li className="nav-item">
               <Link to={"/chat"} className="nav-link">
                 Chat
               </Link>

@@ -36,10 +36,11 @@ const Courses = () => {
 
   return (
     <div className="container">
+      <h3>Courses</h3>
       <header className="jumbotron">
         <div className="search-bar">
           <label htmlFor="searchInput" className="search-label">Search courses:</label>
-          <input id="searchInput" type="text" placeholder="Enter a course name" value={searchTerm} onChange={handleSearch} className="search-input" />
+          <br/><input id="searchInput" type="text" placeholder="Enter a course name" value={searchTerm} onChange={handleSearch} className="search-input" />
         </div>
         <br/>
         <div className="course-list">

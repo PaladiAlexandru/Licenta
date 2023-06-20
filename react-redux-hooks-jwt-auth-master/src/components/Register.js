@@ -94,12 +94,12 @@ const Register = () => {
   };
 
   return (
-    <div className="col-md-12">
-      <div className="card card-container">
+    <div className="col-md-12 d-flex justify-content-center align-items-center">
+      <div className="">
         <img
           src="//ssl.gstatic.com/accounts/ui/avatar_2x.png"
           alt="profile-img"
-          className="profile-img-card"
+          className="profile-img-card rounded-circle"
         />
 
         <Form onSubmit={handleRegister} ref={form}>
@@ -149,7 +149,7 @@ const Register = () => {
 
           {message && (
             <div className="form-group">
-              <div className={ successful ? "alert alert-success" : "alert alert-danger" } role="alert">
+              <div className={successful ? "alert alert-success" : "alert alert-danger"} role="alert">
                 {message}
               </div>
             </div>

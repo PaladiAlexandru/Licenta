@@ -47,7 +47,7 @@ const Login = (props) => {
     setLoading(true);
 
     form.current.validateAll();
-    debugger
+
     if (checkBtn.current.context._errors.length === 0) {
       dispatch(login(username, password))
         .then(() => {
@@ -67,12 +67,12 @@ const Login = (props) => {
   }
 
   return (
-    <div className="col-md-12">
-      <div className="card card-container">
+    <div className="col-md-12 d-flex justify-content-center align-items-center container">
+      <div>
         <img
           src="//ssl.gstatic.com/accounts/ui/avatar_2x.png"
           alt="profile-img"
-          className="profile-img-card"
+          className="profile-img-card rounded-circle"
         />
 
         <Form onSubmit={handleLogin} ref={form}>

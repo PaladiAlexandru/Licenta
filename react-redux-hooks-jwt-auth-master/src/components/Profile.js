@@ -89,7 +89,7 @@ const Profile = () => {
       </form>
       
       <p>
-        <strong>Role:</strong> {currentUser.rows[0].role}
+        <strong>Role:</strong> {currentUser.rows[0].role == "secretar"? "Administrator":currentUser.rows[0].role}
       </p>
      
     </div>

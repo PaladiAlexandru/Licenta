@@ -4,7 +4,7 @@ import EventBus from "../common/EventBus";
 import Table from "./Table/Table";
 import { useDispatch, useSelector} from "react-redux";
 import { USERS_LOADED } from "../actions/mod";
-const colNames = ['Name','Password','Role']
+const colNames = ['Name','Role']
 
 const BoardModerator = () => {
   const dispatch= useDispatch();

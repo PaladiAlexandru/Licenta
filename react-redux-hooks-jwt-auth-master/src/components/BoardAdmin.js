@@ -29,11 +29,9 @@ const BoardAdmin = () => {
           + Add Course
         </button>
        
-        <br />
-        <br />
-        <br />
+       
 
-        <h3>Courses</h3>
+        
         <Courses />
       </header>
     </div>
